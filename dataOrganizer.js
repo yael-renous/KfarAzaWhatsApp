@@ -3,6 +3,8 @@ const fs = require('fs').promises;
 const path = require('path');
 const cheerio = require('cheerio');
 const XLSX = require('xlsx');
+const translate = require('./translations');
+
 
 async function parseDocxFile(filePath) {
   const buffer = await fs.readFile(filePath);
@@ -84,7 +86,7 @@ async function processDocument(fileName) {
     console.log(`Total unique users: ${userSet.size}`);
 
     // Write messages to JSON file
-    const jsonFileName = path.basename(fileName, '.docx') + '.json';
+    const jsonFileName = translate(path.basename(fileName, '.docx')) + '.json';
     const jsonPath = path.join(__dirname, 'Messages', 'JSON', jsonFileName);
     await fs.writeFile(jsonPath, JSON.stringify({ messages }, null, 2));
     console.log(`Messages output written to ${jsonPath}`);
@@ -112,9 +114,13 @@ async function processAllDocuments() {
     users.forEach(user => allUsers.add(user));
   }
 
-  console.log('All users:', Array.from(allUsers));
-  console.log('Users by doc:', usersByDoc);
+  // console.log('All users:', Array.from(allUsers));
+  // console.log('Users by doc:', usersByDoc);
 
+ // await createUserExcelFile(usersByDoc, allUsers);
+}
+
+async function createUserExcelFile(usersByDoc, allUsers) {
   // Create Excel file with user names
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet([['Users', ...Object.keys(usersByDoc)]]);
