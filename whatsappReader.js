@@ -46,7 +46,7 @@ class WhatsAppReader {
       userName: message.userName,
       message: message.messageContent,
       y: 0,
-      messageHeight:0
+      height:0
     };
   }
 }
