@@ -46,8 +46,27 @@ class WhatsAppReader {
       userName: message.userName,
       message: message.messageContent,
       y: 0,
-      height:0
+      contentHeight:0,
+      totalHeight:0
+
     };
+  }
+
+  getAllMessages() {
+    if (!this.currentChat) {
+      console.error('No chat loaded. Please load a chat first.');
+      return null;
+    }
+
+    return this.currentChat.map(message => ({
+      date: message.date,
+      time: message.time,
+      userName: message.userName,
+      message: message.messageContent,
+      y: 0,
+      contentHeight:0,
+      totalHeight:0
+    }));
   }
 }
 

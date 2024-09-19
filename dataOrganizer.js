@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const cheerio = require('cheerio');
 const XLSX = require('xlsx');
-const translate = require('./translations');
+const translate = require('./groupData');
 
 const CENSORED_STRING = 'צנזורמערכתי';
 

@@ -1,104 +1,205 @@
 let chatReader;
 let messages = [];
+// let groupData = require('./groupData');
+
+//------ chat assets ------
+let chatBgImage;
+let barColors;
+let textColor;
 let font;
-let canvasWidth = 360;  // Typical width of a narrow smartphone screen
-let canvasHeight = 640; // Height based on 16:9 aspect ratio
+let topBarHeight = 100;
+let bottomBarHeight = 80;
+
+let chatBoxBgColor;
 let textWidth = 200;
+let endOfChatYPos = 10;
+let startOfChatYPos = 10;
+let scrollAmount = 10;
+const fontSize = 14;
+let distanceBetweenUsernameAndMessage =12 ;
+let distanceBetweenTimeAndMessage =20 ;
+let distanceBetweenMessages =20 ;
 
-let lastMessageY =10;
-let scrollOffset = 0;
-let targetScrollOffset = 0;
-const scrollSpeed = 0.1; // Adjust this value to change the scroll speed
-let shouldScroll = false;
-let scrollAmount = 10; 
-const fontSize =14;
+// -----------------------
 
+//------ chat data ------
+let chat;
+let currentTime;
+let currentDate;
+//-----------------------
+
+//------ auto play ------
 let autoPlayInterval;
 let isAutoPlaying = false;
 const autoPlayDelay = 1000; // 1 second delay
 
+//-----------------------
+
 function preload() {
-  //font = loadFont('path/to/your/font.ttf'); // Load a font that supports Hebrew
+  chatBgImage = loadImage('Assets/Images/whatsapp_bg.jpg'); // Load the WhatsApp background image
+  barColors = "#fcfbf9";
+  chatBoxBgColor = "#fcfbf9";
+  textColor = color(0, 0, 0);
+  startOfChatYPos = topBarHeight + 10;
 }
 
 function setup() {
-  createCanvas((windowHeight*9)/16, windowHeight);
-  // textSize(fontSize);
-  // textWrap(WORD);
+  createCanvas((windowHeight * 9) / 16, windowHeight);
+  endOfChatYPos = height - bottomBarHeight-30;
 
   if (typeof WhatsAppReader !== 'undefined') {
     chatReader = new WhatsAppReader();
     console.log('WhatsAppReader is defined');
-    loadChat('bulgaria'); // Load the chat directly with its Hebrew name
+
+    chat = groups.tweeters;
+    loadChat(chat); // Load the chat directly with its Hebrew name
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
-  //TODO: remove this button
   let autoPlayButton = createButton('Auto Play');
   autoPlayButton.position(10, 10);
   autoPlayButton.mousePressed(toggleAutoPlay);
-
 }
 
-function drawUI(){
+///----- Draw Functions -----
 
-
-  // drawTopBar();
-  // drawChatArea();
-  drawBottomBar();  
+function drawUI() {
+  drawTopBar();
+  drawTimeTicker();
+  drawBottomBar();
 }
 
 function drawTopBar() {
-  fill(0);
-  rect(0, 0, canvasWidth, 50);
-  fill(255);
-  textAlign(LEFT, CENTER);
-  text("19:37:02 7 באוקטובר", 10, 25);
-  textAlign(RIGHT, CENTER);
-  text("Group Chat Name", canvasWidth - 10, 25);
+  push();
+  //bar
+  stroke("#dadada")
+  fill(barColors);
+  rect(0, 0, width, 90);
+
+  //group name
+  fill("black");
+  textSize(18);
+  textAlign(CENTER, TOP);
+  //console.log(chat.title);
+  text(chat.title, width/2, topBarHeight/2);
+  //group icon
+  pop();
 }
 
-// function drawChatArea() {
-//   // Your existing chat display logic goes here
-// }
+function drawTimeTicker() {
+  push();
+  const tickerbackground = "black";
+  let date = "7 באוקטובר";
+  let time = "19:37:02";
+  const tickerTextColor = "white";
+  const tickerFontSize = 18;
+  const tickerX = width / 2;
+  const tickerY = topBarHeight / 4;
+
+  rectMode(CENTER)
+
+  fill(tickerbackground);
+  rect(tickerX, tickerY, textWidth, tickerFontSize * 2, 300, 300, 300, 300);
+  fill(tickerTextColor);
+  text(date, tickerX - date.length * tickerFontSize / 2, tickerY);
+  text(time, tickerX + date.length * tickerFontSize / 2, tickerY);
+  pop();
+}
 
 function drawBottomBar() {
-  fill('red');
-  // rectMode(BOTTOM);
-  rect(0, canvasHeight-10, canvasWidth, 10);
+  push();
+  stroke("#dadada")
+  fill(barColors);
+  rect(0, height - 80, width, 80);
   // Draw input field and icons here
-}
 
-
-function toggleAutoPlay() {
-  isAutoPlaying = !isAutoPlaying;
-  if (isAutoPlaying) {
-    autoPlayInterval = setInterval(loadNextMessage, autoPlayDelay);
-  } else {
-    clearInterval(autoPlayInterval);
-  }
+  pop();
 }
 
 function draw() {
-  background('black');
-  drawUI();
+  background(chatBgImage); // Use the loaded image as background
   displayMessages();
+  drawUI();
 }
 
-function keyPressed() {
-  if (keyCode === RIGHT_ARROW) {
-    loadNextMessage();
-  }
-}
 
-async function loadChat(chatName) {
-  let success = await chatReader.loadChat(chatName);
+async function loadChat(chat) {
+  let success = await chatReader.loadChat(chat.englishName);
   if (success) {
-    console.log(`Loaded chat: ${chatName}`);
-    loadNextMessage();
+    console.log(`Loaded chat: ${chat.englishName}`);
+    messages = chatReader.getAllMessages(); 
+    setMessageYPositions();
+    // updateDisplayedMessages();
   } else {
-    console.error(`Failed to load chat: ${chatName}`);
+    console.error(`Failed to load chat: ${chat.englishName}`);
   }
+}
+
+
+function setMessageYPositions() {
+  for (let i = 0; i < messages.length; i++) {
+    messages[i].y = startOfChatYPos + i * 100;
+  }
+}
+
+function displayMessages() {
+  push();
+  textAlign(RIGHT, TOP);
+ // let y = startOfChatYPos;
+  let messageXOffset = 30;
+  let timeXOffset = 90;
+  //let messageWidth =-200 ;
+  for (let message of messages) {
+    message.height = calculateMessageHeight(message);
+    
+    // Display message
+    fill('red');
+    text(':שם משתמש', width, message.y);
+   // rectMode(CORNERS)
+   
+    text(message.message + '\u200F', width - messageXOffset, message.y + distanceBetweenUsernameAndMessage);
+    text(message.time, width - timeXOffset, message.y + distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage);
+    
+  }
+  pop();
+}
+
+
+// function getTotalMessagesHeight() {
+//   return messages.reduce((total, msg) => total + calculateMessageHeight(msg) + distanceBetweenMessages, 0);
+// }
+
+// function getAverageMessageHeight() {
+//   // You might want to calculate this once and cache it
+//   return getTotalMessagesHeight() / messages.length;
+// }
+
+function calculateMessageHeight(message) {
+  // Calculate the number of lines in the message
+  let lines = message.message.split('\n').length;
+  // Adjust the height based on the number of lines
+  let messageHeight = lines * fontSize;
+  // Add extra space for username and time
+  return (fontSize * 2 )+messageHeight + distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage;
+}
+
+
+
+function mouseWheel(event) {
+    //block up scrolling before the first message
+  if(messages[0].y-(event.delta)>startOfChatYPos){
+    return;
+  }
+  //block down scrolling before the last message
+  if(messages[messages.length-1].y-(event.delta)<endOfChatYPos-100){
+    return;
+  }
+  for (let i=0;i<messages.length;i++) {
+  
+  
+    messages[i].y = messages[i].y-(event.delta);
+  }
+  return false; // Prevent default scrolling
 }
 
 function loadNextMessage() {
@@ -113,55 +214,12 @@ function loadNextMessage() {
   }
 }
 
-function displayMessages() {
-  fill('white');
-  let distanceBetweenMessages = 10;
-  let distanceBetweenUsernameAndMessage = 20;
-  let distanceBetweenTimeAndMessage = 40;
-  let messageXOffset = 30;
-  let timeXOffset = 190;
-
-  textAlign(RIGHT, TOP);
-  for (let i = 0; i < messages.length; i++) {
-      let message = messages[i];
-      message.height = fontSize*3 + distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage;
-      if(i>0){
-        message.y = messages[i-1].y + messages[i-1].height + distanceBetweenMessages;
-      }
-      if(message.y+message.height>=canvasHeight-lastMessageY){
-        scrollMessages();
-      }
-      //censored username
-      text(':שם משתמש', canvasWidth, message.y);
-      //message
-      text(message.message, canvasWidth-messageXOffset, message.y+distanceBetweenUsernameAndMessage);
-      //time
-      text(message.time, canvasWidth-timeXOffset, message.y+distanceBetweenUsernameAndMessage+distanceBetweenTimeAndMessage);
+function toggleAutoPlay() {
+  if (isAutoPlaying) {
+    clearInterval(autoPlayInterval);
+    isAutoPlaying = false;
+  } else {
+    autoPlayInterval = setInterval(loadNextMessage, autoPlayDelay);
+    isAutoPlaying = true;
   }
-}
-
-function scrollMessages(){
-  for (let message of messages) {
-    message.y -= scrollAmount;
-  }
-}
-
-function textHeight(text, maxWidth) {
-  var words = text.split(' ');
-  var line = '';
-  var h = this._textLeading;
-
-  for (var i = 0; i < words.length; i++) {
-      var testLine = line + words[i] + ' ';
-      var testWidth = drawingContext.measureText(testLine).width;
-
-      if (testWidth > maxWidth && i > 0) {
-          line = words[i] + ' ';
-          h += this._textLeading;
-      } else {
-          line = testLine;
-      }
-  }
-
-  return h;
 }
