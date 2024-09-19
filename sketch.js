@@ -23,8 +23,8 @@ function preload() {
 
 function setup() {
   createCanvas((windowHeight*9)/16, windowHeight);
-  textSize(fontSize);
-  textWrap(WORD);
+  // textSize(fontSize);
+  // textWrap(WORD);
 
   if (typeof WhatsAppReader !== 'undefined') {
     chatReader = new WhatsAppReader();
@@ -33,12 +33,42 @@ function setup() {
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
-
-  // Create auto-play button
+  //TODO: remove this button
   let autoPlayButton = createButton('Auto Play');
   autoPlayButton.position(10, 10);
   autoPlayButton.mousePressed(toggleAutoPlay);
+
 }
+
+function drawUI(){
+
+
+  // drawTopBar();
+  // drawChatArea();
+  drawBottomBar();  
+}
+
+function drawTopBar() {
+  fill(0);
+  rect(0, 0, canvasWidth, 50);
+  fill(255);
+  textAlign(LEFT, CENTER);
+  text("19:37:02 7 באוקטובר", 10, 25);
+  textAlign(RIGHT, CENTER);
+  text("Group Chat Name", canvasWidth - 10, 25);
+}
+
+// function drawChatArea() {
+//   // Your existing chat display logic goes here
+// }
+
+function drawBottomBar() {
+  fill('red');
+  // rectMode(BOTTOM);
+  rect(0, canvasHeight-10, canvasWidth, 10);
+  // Draw input field and icons here
+}
+
 
 function toggleAutoPlay() {
   isAutoPlaying = !isAutoPlaying;
@@ -50,7 +80,8 @@ function toggleAutoPlay() {
 }
 
 function draw() {
-  background(240);
+  background('black');
+  drawUI();
   displayMessages();
 }
 
@@ -83,6 +114,7 @@ function loadNextMessage() {
 }
 
 function displayMessages() {
+  fill('white');
   let distanceBetweenMessages = 10;
   let distanceBetweenUsernameAndMessage = 20;
   let distanceBetweenTimeAndMessage = 40;

@@ -5,6 +5,17 @@ const cheerio = require('cheerio');
 const XLSX = require('xlsx');
 const translate = require('./translations');
 
+const CENSORED_STRING = 'צנזורמערכתי';
+
+// Modify the isOnlyCensoredContent function
+function isOnlyCensoredContent(messageContent) {
+  // Remove all whitespace and newlines
+  let cleanedContent = messageContent.replace(/\s+/g, '');
+  cleanedContent = cleanedContent.replace(/[\u200B-\u200F\uFEFF\u202C]/g, '');
+
+  // Check if the cleaned content is empty or only contains the censored string
+  return cleanedContent === '' || cleanedContent === CENSORED_STRING.repeat(cleanedContent.length / CENSORED_STRING.length);
+}
 
 async function parseDocxFile(filePath) {
   const buffer = await fs.readFile(filePath);
@@ -15,39 +26,37 @@ async function parseDocxFile(filePath) {
 async function processDocument(fileName) {
   const filePath = path.join(__dirname, 'Messages', 'Docs', fileName);
   console.log(`Processing file: ${filePath}`);
-  
+
   try {
     const htmlContent = await parseDocxFile(filePath);
     console.log(`HTML content length: ${htmlContent.length}`);
-    
+
     const cheerioDocument = cheerio.load(htmlContent);
-    
+
     const messages = [];
     const userSet = new Set();
-    
+
     // Updated regex to match both formats
     const messageRegex = /^(?:\[(.*?)\]|(\d{1,2}[./]\d{1,2}[./]\d{2,4}),\s*(\d{1,2}:\d{2})\s*-\s*)([^:]+):(.*)/;
 
     let currentMessage = null;
     let messageCount = 0;
 
-    cheerioDocument('p').each(function(index, element) {
+    cheerioDocument('p').each(function (index, element) {
       const paragraphElement = cheerioDocument(element);
       let text = paragraphElement.text().trim();
-      
+
       // Clean the text of potential invisible Unicode characters
-      text = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
-      
-      if (index < 5) console.log(`Sample text (${index}): ${text}`);
-      
+      text = text.replace(/[\u200B-\u200F\uFEFF\u202C]/g, '');
+
       const match = text.match(messageRegex);
 
       if (match) {
         messageCount++;
-        if (currentMessage) {
+        if (currentMessage && !isOnlyCensoredContent(currentMessage.messageContent)) {
           messages.push(currentMessage);
         }
-        
+
         let date, time;
         if (match[1]) {
           // Format: [date,time]
@@ -58,27 +67,38 @@ async function processDocument(fileName) {
           time = match[3];
         }
         const userName = match[4].trim();
-        const messageContent = match[5].trim();
-        
-        const isStrikethrough = paragraphElement.find('s').length > 0 && paragraphElement.find('s').text() === text;
+        let messageContent = match[5].trim(); 
 
-        if (!isStrikethrough) {
-          currentMessage = {
-            date: date.trim(),
-            time: time.trim(),
-            userName: userName,
-            messageContent: messageContent
-          };
-          userSet.add(userName);  // Add the user to the userSet
+        // Check for strikethrough on the entire message (including date/time)
+        const isFullStrikethrough = paragraphElement.find('s').length > 0 && paragraphElement.find('s').text() === text;
+
+        if (!isFullStrikethrough) {
+          // Check for partial strikethrough (e.g., only on date/time)
+          const dateTimeStrikethrough = paragraphElement.find('s').text().includes(date);
+          
+          if (dateTimeStrikethrough) {
+            // If date/time is strikethrough, skip this message
+            currentMessage = null;
+          } else {
+            messageContent = replaceStrikethrough(cheerioDocument, paragraphElement, messageContent, userName);
+            currentMessage = {
+              date: date.trim(),
+              time: time.trim(),
+              userName: userName,
+              messageContent: messageContent
+            };
+            userSet.add(userName);  // Add the user to the userSet
+          }
         } else {
           currentMessage = null;
         }
       } else if (currentMessage) {
+        text = replaceStrikethrough(cheerioDocument, paragraphElement, text, null);
         currentMessage.messageContent += '\n' + text;
       }
     });
 
-    if (currentMessage) {
+    if (currentMessage && !isOnlyCensoredContent(currentMessage.messageContent)) {
       messages.push(currentMessage);
     }
 
@@ -98,6 +118,29 @@ async function processDocument(fileName) {
   }
 }
 
+function replaceStrikethrough(cheerioDocument, paragraphElement, messageContent, userName) {
+  paragraphElement.find('s').each(function () {
+    let strikethroughText = cheerioDocument(this).text().trim();
+    strikethroughText = strikethroughText.replace(/[\u200B-\u200F\uFEFF\u202C]/g, '');
+
+    if (strikethroughText) {
+      if (userName && strikethroughText.includes(userName)) { //if the user name is in the strikethrough text (includes datetime)
+        const usernameIndex = strikethroughText.indexOf(userName);
+        const strikethrough = strikethroughText.substring(usernameIndex + userName.length + 2).trim();
+        if (strikethrough.length > 1) {//if the strikethrough is not just the user name
+          messageContent = messageContent.replace(strikethrough.toString(), CENSORED_STRING);
+          console.log('\x1b[31m%s\x1b[0m', strikethrough + " -> צנזור");
+
+        }
+      }
+      else {//if the strikethrough is just the message content
+        messageContent = messageContent.replace(strikethroughText, CENSORED_STRING);
+      }
+    }
+  });
+  return messageContent;
+}
+
 async function processAllDocuments() {
   const docsDir = path.join(__dirname, 'Messages', 'Docs');
   const files = await fs.readdir(docsDir);
@@ -108,6 +151,13 @@ async function processAllDocuments() {
 
   for (const file of docxFiles) {
     console.log(`Processing ${file}...`);
+    if (file === 'טיול-בולגריה.docx') {
+      const users = await processDocument(file);
+      const docName = path.basename(file, '.docx');
+      usersByDoc[docName] = users;
+      users.forEach(user => allUsers.add(user));
+      continue;
+    }
     const users = await processDocument(file);
     const docName = path.basename(file, '.docx');
     usersByDoc[docName] = users;
@@ -117,7 +167,7 @@ async function processAllDocuments() {
   // console.log('All users:', Array.from(allUsers));
   // console.log('Users by doc:', usersByDoc);
 
- // await createUserExcelFile(usersByDoc, allUsers);
+  // await createUserExcelFile(usersByDoc, allUsers);
 }
 
 async function createUserExcelFile(usersByDoc, allUsers) {
@@ -158,6 +208,6 @@ async function main() {
   await processAllDocuments();
 }
 
-main().catch(function(error) {
+main().catch(function (error) {
   console.error(error);
 });
