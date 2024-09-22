@@ -9,6 +9,7 @@ let isAutoMode = false;
 let chatBgImage;
 let barColors;
 let textColor;
+let timestampColor;
 let font;
 let topBarHeight = 100;
 let bottomBarHeight = 80;
@@ -26,19 +27,20 @@ let distanceBetweenUsernameAndMessage = 20;
 let distanceBetweenTimeAndMessage = 20;
 let distanceBetweenMessages = 0;
 let messageXOffset = 30;
-let timeXOffset = 40;
+let timeXOffset = 10;
 let wholeMessagePadding = 50;
 let chatBoxYPadding = 4;
 let chatBoxXPadding = 20;
 const userIconSize = 30; // Diameter of the icon
 const userIconXPadding = 10;
-const userIconYPadding = 9;
+const userIconYPadding = 2;
 // -----------------------
 
 //------ chat data ------
 let chat;
 let currentTime;
 let currentDate;
+let maxNumOfCharsInLine = 30;
 //-----------------------
 
 //------ auto play ------
@@ -55,6 +57,7 @@ function preload() {
   chatBoxBgColor = "#fcfbf9";
   redChatBoxColor = "#bd0202";
   yellowChatBoxColor = "#f5d905";
+  timestampColor = "grey";
   textColor = color(0, 0, 0);
   startOfChatYPos = topBarHeight + 10;
 
@@ -92,9 +95,7 @@ function setup() {
 
 function drawUI() {
   drawTopBar();
-  // if (isAutoPlaying) {
-    drawTimeTicker();
-  // }
+  drawTimeTicker();
   drawBottomBar();
 }
 
@@ -151,7 +152,6 @@ function drawBottomBar() {
   fill(barColors);
   rect(0, height - 80, width, 80);
   // Draw input field and icons here
-
   pop();
 }
 
@@ -161,6 +161,7 @@ function displayMessages() {
   textAlign(RIGHT, TOP);
   for (let message of messages) {
     textSize(messageFontSize);
+    let contentWidth = textWidth(message.message);
     drawChatBox(message);
     drawUserIcon(message);
 
@@ -178,13 +179,16 @@ function displayMessages() {
     text(username, width - wholeMessagePadding, message.y);
 
     // Draw the rest of the message normally
+   
     fill(textColor);
+    // if(userData[message.userName].status == 'M')
+    //   fill("white");
     text(message.message + '\u200F', width - wholeMessagePadding - messageXOffset, message.y + distanceBetweenUsernameAndMessage);
 
     textSize(timestampFontSize);
-    let contentWidth = textWidth(message.message);
-    let timestampOffset = width - wholeMessagePadding - messageXOffset-contentWidth-timeXOffset;
-    text(message.time, timestampOffset, message.y + message.height -distanceBetweenUsernameAndMessage);
+    fill(timestampColor);
+    let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+    text(message.time, timestampOffset, message.y + message.height);
   }
   pop();
 }
@@ -193,7 +197,7 @@ function drawUserIcon(message) {
   push();
   imageMode(CENTER);
   const iconX = width - userIconXPadding - userIconSize / 2; // Position X
-  const iconY = message.y + userIconSize + userIconYPadding; // Position Y
+  const iconY = message.y  + message.height; // Position Y
   let img = userData[message.userName].img;
   image(img, iconX, iconY, userIconSize, userIconSize);
   pop();
@@ -216,18 +220,18 @@ function drawChatBox(message) {
     bgColor = yellowChatBoxColor;
   }
   fill(bgColor);
-  //x = end of message
-  //y = same y
-  //opposite x = width-wholeMessagePadding
-  //opposite y = height
-  //height = message height
+
+  textSize(messageFontSize);
   let contentWidth = textWidth(message.message);
+  textSize(timestampFontSize);
   let timestampWidth = textWidth(message.time);
   //console.log(contentWidth);
-  let leftTopX = width - wholeMessagePadding - contentWidth - timestampWidth - chatBoxXPadding -messageXOffset ;
+
+  let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  let leftTopX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopY = message.y - chatBoxYPadding;
   let rightBottomX = width - wholeMessagePadding + 7;
-  let rightBottomY = message.y + message.height;
+  let rightBottomY = message.y + message.height + timestampFontSize + chatBoxYPadding;
   rect(leftTopX, leftTopY, rightBottomX, rightBottomY, 10, 10, 10, 10);
   pop();
 }
@@ -253,10 +257,31 @@ async function loadChat(chat) {
     messages = chatReader.getAllMessages();
     let rawUserData = chatReader.getUserData();
     await loadUserData(rawUserData);
+    addMessagesNewLines();
     setMessageYPositions();
     //renderMessageImages();
   } else {
     console.error(`Failed to load chat: ${chat.englishName}`);
+  }
+}
+
+function addMessagesNewLines() {
+  for (let i = 0; i < messages.length; i++) {
+    let lines = messages[i].message.split('\n');
+    let newContent = [];
+
+    for (let line of lines) {
+      while (line.length > maxNumOfCharsInLine) {
+        let splitIndex = line.lastIndexOf(' ', maxNumOfCharsInLine);
+        if (splitIndex === -1) splitIndex = maxNumOfCharsInLine;
+
+        newContent.push(line.substring(0, splitIndex));
+        line = line.substring(splitIndex).trim();
+      }
+      if (line.length > 0) newContent.push(line);
+    }
+
+    messages[i].message = newContent.join('\n');
   }
 }
 
@@ -280,13 +305,12 @@ async function loadUserData(rawUserData) {
 function setMessageYPositions() {
   for (let i = 0; i < messages.length; i++) {
     messages[i].height = calculateMessageHeight(messages[i]);
-    let previousMessageY=startOfChatYPos;
-    if(i>0)
-    {
-      previousMessageY=messages[i-1].y+messages[i-1].height;
+    let previousMessageY = startOfChatYPos;
+    if (i > 0) {
+      previousMessageY = messages[i - 1].y + messages[i - 1].height;
     }
 
-    messages[i].y = previousMessageY +messages[i].height+distanceBetweenMessages;
+    messages[i].y = previousMessageY + messages[i].height + distanceBetweenMessages;
   }
 }
 
@@ -439,7 +463,10 @@ function calculateMessageHeight(message) {
   // Adjust the height based on the number of lines
   let messageHeight = lines * messageFontSize;
   // Add extra space for username and time
-  return  messageHeight + distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage;
+  return messageHeight 
+  +timestampFontSize
+  + distanceBetweenUsernameAndMessage
+  //  + distanceBetweenTimeAndMessage;
 }
 
 // function mouseWheel(event) {
