@@ -1,0 +1,308 @@
+{
+  "חלי ברעם": {
+    "username": "חלי ברעם",
+    "icon": "icon-140",
+    "color": "#7158d9",
+    "status": ""
+  },
+  "נעמי הירשפלד": {
+    "username": "נעמי הירשפלד",
+    "icon": "icon-274",
+    "color": "#759a52",
+    "status": ""
+  },
+  "סהר  צ'ונה": {
+    "username": "סהר  צ'ונה",
+    "icon": "icon-360",
+    "color": "#7e05d3",
+    "status": ""
+  },
+  "אילנית סוויסה": {
+    "username": "אילנית סוויסה",
+    "icon": "icon-061",
+    "color": "#9b173a",
+    "status": ""
+  },
+  "אופירה": {
+    "username": "אופירה",
+    "icon": "icon-188",
+    "color": "#7f7108",
+    "status": ""
+  },
+  "אופיר כהן": {
+    "username": "אופיר כהן",
+    "icon": "icon-113",
+    "color": "#071292",
+    "status": ""
+  },
+  "ליאורה בוקובזה": {
+    "username": "ליאורה בוקובזה",
+    "icon": "icon-320",
+    "color": "#93b86d",
+    "status": ""
+  },
+  "אייל עטר": {
+    "username": "אייל עטר",
+    "icon": "icon-446",
+    "color": "#ece9a0",
+    "status": ""
+  },
+  "נוגה פכטר": {
+    "username": "נוגה פכטר",
+    "icon": "icon-327",
+    "color": "#ca1a90",
+    "status": ""
+  },
+  "+972 54-211-0094": {
+    "username": "+972 54-211-0094",
+    "icon": "icon-202",
+    "color": "#1bd24d",
+    "status": ""
+  },
+  "+972 50-626-3915": {
+    "username": "+972 50-626-3915",
+    "icon": "icon-203",
+    "color": "#8d3c77",
+    "status": ""
+  },
+  "+972 50-649-2864": {
+    "username": "+972 50-649-2864",
+    "icon": "icon-187",
+    "color": "#2b37f7",
+    "status": ""
+  },
+  "+972 50-649-1858": {
+    "username": "+972 50-649-1858",
+    "icon": "icon-235",
+    "color": "#b88441",
+    "status": ""
+  },
+  "רונית איפרגן": {
+    "username": "רונית איפרגן",
+    "icon": "icon-298",
+    "color": "#4a0196",
+    "status": ""
+  },
+  "אולגוש": {
+    "username": "אולגוש",
+    "icon": "icon-206",
+    "color": "#9cacf0",
+    "status": ""
+  },
+  "+972 50-649-2340": {
+    "username": "+972 50-649-2340",
+    "icon": "icon-093",
+    "color": "#3a56b8",
+    "status": ""
+  },
+  "גאיה בינג": {
+    "username": "גאיה בינג",
+    "icon": "icon-111",
+    "color": "#ab5bf6",
+    "status": ""
+  },
+  "שיר חרמש": {
+    "username": "שיר חרמש",
+    "icon": "icon-120",
+    "color": "#d48d5f",
+    "status": ""
+  },
+  "אורית צדיקביץ'": {
+    "username": "אורית צדיקביץ'",
+    "icon": "icon-156",
+    "color": "#be6729",
+    "status": ""
+  },
+  "מעין שוורצמן": {
+    "username": "מעין שוורצמן",
+    "icon": "icon-063",
+    "color": "#d45f5b",
+    "status": ""
+  },
+  "Yamit Ashkenazi": {
+    "username": "Yamit Ashkenazi",
+    "icon": "icon-001",
+    "color": "#687d9a",
+    "status": ""
+  },
+  "ליטל רוזנפלד": {
+    "username": "ליטל רוזנפלד",
+    "icon": "icon-411",
+    "color": "#3efa63",
+    "status": ""
+  },
+  "+972 50-824-0892": {
+    "username": "+972 50-824-0892",
+    "icon": "icon-313",
+    "color": "#937e25",
+    "status": ""
+  },
+  "+972 50-694-6183": {
+    "username": "+972 50-694-6183",
+    "icon": "icon-178",
+    "color": "#a44a56",
+    "status": ""
+  },
+  "+972 50-547-5739": {
+    "username": "+972 50-547-5739",
+    "icon": "icon-295",
+    "color": "#1ebe9e",
+    "status": ""
+  },
+  "עופר הלפרין": {
+    "username": "עופר הלפרין",
+    "icon": "icon-347",
+    "color": "#61e26d",
+    "status": ""
+  },
+  "נטלי לרון": {
+    "username": "נטלי לרון",
+    "icon": "icon-053",
+    "color": "#cefa8e",
+    "status": ""
+  },
+  "מור מורבייה": {
+    "username": "מור מורבייה",
+    "icon": "icon-299",
+    "color": "#94bd65",
+    "status": ""
+  },
+  "ניצן דולב": {
+    "username": "ניצן דולב",
+    "icon": "icon-027",
+    "color": "#a8e33f",
+    "status": ""
+  },
+  "אורן רגב": {
+    "username": "אורן רגב",
+    "icon": "icon-296",
+    "color": "#c0e7f8",
+    "status": ""
+  },
+  "נרקיס שגב": {
+    "username": "נרקיס שגב",
+    "icon": "icon-462",
+    "color": "#b3e632",
+    "status": ""
+  },
+  "לירון מור": {
+    "username": "לירון מור",
+    "icon": "icon-065",
+    "color": "#c36d43",
+    "status": ""
+  },
+  "פזית דמארי": {
+    "username": "פזית דמארי",
+    "icon": "icon-386",
+    "color": "#19b127",
+    "status": ""
+  },
+  "מאיה טריגר": {
+    "username": "מאיה טריגר",
+    "icon": "icon-164",
+    "color": "#f02b9c",
+    "status": ""
+  },
+  "+972 54-668-9026": {
+    "username": "+972 54-668-9026",
+    "icon": "icon-246",
+    "color": "#bc5784",
+    "status": ""
+  },
+  "אלינור ביטון בריח": {
+    "username": "אלינור ביטון בריח",
+    "icon": "icon-013",
+    "color": "#f54131",
+    "status": ""
+  },
+  "+972 52-469-7986": {
+    "username": "+972 52-469-7986",
+    "icon": "icon-179",
+    "color": "#f490d7",
+    "status": ""
+  },
+  "רני דרומי": {
+    "username": "רני דרומי",
+    "icon": "icon-370",
+    "color": "#e3f8a4",
+    "status": ""
+  },
+  "ירדן בן ברוך": {
+    "username": "ירדן בן ברוך",
+    "icon": "icon-062",
+    "color": "#448ee4",
+    "status": ""
+  },
+  "עפרי בצר": {
+    "username": "עפרי בצר",
+    "icon": "icon-344",
+    "color": "#f42ec5",
+    "status": ""
+  },
+  "+972 50-649-3978": {
+    "username": "+972 50-649-3978",
+    "icon": "icon-324",
+    "color": "#56d6c1",
+    "status": ""
+  },
+  "Madlen Bing מדלן בינג": {
+    "username": "Madlen Bing מדלן בינג",
+    "icon": "icon-171",
+    "color": "#a24e94",
+    "status": ""
+  },
+  "אושרית בן דויד": {
+    "username": "אושרית בן דויד",
+    "icon": "icon-270",
+    "color": "#e2b340",
+    "status": ""
+  },
+  "לילה שוורצמן": {
+    "username": "לילה שוורצמן",
+    "icon": "icon-055",
+    "color": "#0ecd5d",
+    "status": ""
+  },
+  "שוחי הנדי": {
+    "username": "שוחי הנדי",
+    "icon": "icon-186",
+    "color": "#89d015",
+    "status": ""
+  },
+  "+972 54-675-5306": {
+    "username": "+972 54-675-5306",
+    "icon": "icon-183",
+    "color": "#3a3bf5",
+    "status": ""
+  },
+  "יוני": {
+    "username": "יוני",
+    "icon": "icon-216",
+    "color": "#3f4fbe",
+    "status": ""
+  },
+  "מעין ברעם": {
+    "username": "מעין ברעם",
+    "icon": "icon-165",
+    "color": "#924919",
+    "status": ""
+  },
+  "דנה לוי": {
+    "username": "דנה לוי",
+    "icon": "icon-026",
+    "color": "#26ccd9",
+    "status": ""
+  },
+  "הילה בולטינאסקי": {
+    "username": "הילה בולטינאסקי",
+    "icon": "icon-230",
+    "color": "#1a58f4",
+    "status": ""
+  },
+  "אביה עמר": {
+    "username": "אביה עמר",
+    "icon": "icon-300",
+    "color": "#4a6b27",
+    "status": ""
+  }
+}

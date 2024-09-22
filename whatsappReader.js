@@ -2,25 +2,41 @@ class WhatsAppReader {
   constructor() {
     this.currentChat = null;
     this.currentIndex = -1;
+    this.userData = null;
   }
 
   async loadChat(fileName) {
     try {
-      const response = await fetch(`Messages/JSON/${fileName}.json`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Load messages
+      const messageResponse = await fetch(`Messages/JSON/${fileName}.json`);
+      if (!messageResponse.ok) {
+        throw new Error(`HTTP error! status: ${messageResponse.status}`);
       }
-      const chatData = await response.json();
+      const chatData = await messageResponse.json();
       
       if (chatData && Array.isArray(chatData.messages)) {
         this.currentChat = chatData.messages;
         this.currentIndex = -1;
         console.log(`Loaded chat with ${this.currentChat.length} messages`);
-        return true;
       } else {
-        console.error('Invalid chat data format');
-        return false;
+        throw new Error('Invalid chat data format');
       }
+
+      // Load user data
+      const userDataResponse = await fetch(`Messages/UserData/${fileName}UserData.json`);
+      if (!userDataResponse.ok) {
+        throw new Error(`HTTP error! status: ${userDataResponse.status}`);
+      }
+      const rawUserData = await userDataResponse.json();
+      this.userData = Object.entries(rawUserData).map(([username, data]) => ({
+        username: data.username,
+        icon: data.icon,
+        color: data.color,
+        status: data.status
+      }));
+      console.log(`Loaded user data for ${fileName}`);
+
+      return true;
     } catch (error) {
       console.error('Error loading chat data:', error.message);
       throw error;
@@ -67,6 +83,15 @@ class WhatsAppReader {
       contentHeight:0,
       totalHeight:0
     }));
+  }
+
+  getUserData() {
+    if (!this.userData) {
+      console.error('No user data loaded. Please load a chat first.');
+      return null;
+    }
+
+    return this.userData;
   }
 }
 

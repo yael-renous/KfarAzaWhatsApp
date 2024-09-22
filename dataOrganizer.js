@@ -106,7 +106,8 @@ async function processDocument(fileName) {
     console.log(`Total unique users: ${userSet.size}`);
 
     // Write messages to JSON file
-    const jsonFileName = translate(path.basename(fileName, '.docx')) + '.json';
+    // const jsonFileName = translate(path.basename(fileName, '.docx')) + '.json';
+    const jsonFileName = path.basename(fileName, '.docx') + '.json';
     const jsonPath = path.join(__dirname, 'Messages', 'JSON', jsonFileName);
     await fs.writeFile(jsonPath, JSON.stringify({ messages }, null, 2));
     console.log(`Messages output written to ${jsonPath}`);
@@ -129,7 +130,7 @@ function replaceStrikethrough(cheerioDocument, paragraphElement, messageContent,
         const strikethrough = strikethroughText.substring(usernameIndex + userName.length + 2).trim();
         if (strikethrough.length > 1) {//if the strikethrough is not just the user name
           messageContent = messageContent.replace(strikethrough.toString(), CENSORED_STRING);
-          console.log('\x1b[31m%s\x1b[0m', strikethrough + " -> צנזור");
+          //console.log('\x1b[31m%s\x1b[0m', strikethrough + " -> צנזור");
 
         }
       }
@@ -151,51 +152,112 @@ async function processAllDocuments() {
 
   for (const file of docxFiles) {
     console.log(`Processing ${file}...`);
-    if (file === 'טיול-בולגריה.docx') {
-      const users = await processDocument(file);
-      const docName = path.basename(file, '.docx');
-      usersByDoc[docName] = users;
-      users.forEach(user => allUsers.add(user));
-      continue;
-    }
     const users = await processDocument(file);
     const docName = path.basename(file, '.docx');
     usersByDoc[docName] = users;
+    
     users.forEach(user => allUsers.add(user));
+    
+    // Create user data JSON for each document
+    await createUserDataJson(docName, users);
   }
-
-  // console.log('All users:', Array.from(allUsers));
-  // console.log('Users by doc:', usersByDoc);
 
   // await createUserExcelFile(usersByDoc, allUsers);
 }
 
-async function createUserExcelFile(usersByDoc, allUsers) {
-  // Create Excel file with user names
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.aoa_to_sheet([['Users', ...Object.keys(usersByDoc)]]);
+async function createUserDataJson(docName, users) {
+  const userData = {};
+  const usedIcons = new Set();
+  const usedColors = new Set();
 
-  let row = 2; // Start from row 2 (1-indexed in Excel)
-  Array.from(allUsers).sort().forEach(user => {
-    const rowData = [user];
-    Object.keys(usersByDoc).forEach(docName => {
-      rowData.push(usersByDoc[docName].includes(user) ? user : '');
-    });
-    XLSX.utils.sheet_add_aoa(worksheet, [rowData], { origin: `A${row}` });
-    row++;
+  // Read the allUsersStatus.json file
+  const allUsersStatusPath = path.join(__dirname, 'Messages', 'UserData', 'allUsersStatus.json');
+  let allUsersStatus;
+  try {
+    const allUsersStatusContent = await fs.readFile(allUsersStatusPath, 'utf-8');
+    allUsersStatus = JSON.parse(allUsersStatusContent);
+  } catch (error) {
+    console.error('Error reading allUsersStatus.json:', error);
+    allUsersStatus = {};
+  }
+
+  function generateRandomHexColor() {
+    let color;
+    do {
+      color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+    } while (usedColors.has(color));
+    usedColors.add(color);
+    return color;
+  }
+
+  users.forEach((user) => {
+    let iconNumber;
+    let iconName;
+
+    do {
+      iconNumber = Math.floor(Math.random() * 468) + 1;
+      if (iconNumber < 10) {
+        iconName = `icon-00${iconNumber}`;
+      } else if (iconNumber < 100) {
+        iconName = `icon-0${iconNumber}`;
+      } else {
+        iconName = `icon-${iconNumber}`;
+      }
+    } while (usedIcons.has(iconName));
+
+    usedIcons.add(iconName);
+    
+    // Determine user status
+    let status = '';
+    if (allUsersStatus[docName]) {
+      if (allUsersStatus[docName].M && allUsersStatus[docName].M.includes(user)) {
+        status = 'M';
+      } else if (allUsersStatus[docName].H && allUsersStatus[docName].H.includes(user)) {
+        status = 'H';
+      }
+    }
+
+    userData[user] = {
+      username: user,
+      icon: iconName,
+      color: generateRandomHexColor(),
+      status: status
+    };
   });
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-  const excelPath = path.join(__dirname, 'Messages', 'Usernames', 'all_users.xlsx');
-  XLSX.writeFile(workbook, excelPath);
-  console.log(`Excel file with all user names written to ${excelPath}`);
+  const jsonFileName = `${docName}UserData.json`;
+  const jsonPath = path.join(__dirname, 'Messages', 'UserData', jsonFileName);
+  await fs.writeFile(jsonPath, JSON.stringify(userData, null, 2));
+  console.log(`User data JSON written to ${jsonPath}`);
 }
+
+// async function createUserExcelFile(usersByDoc, allUsers) {
+//   // Create Excel file with user names
+//   const workbook = XLSX.utils.book_new();
+//   const worksheet = XLSX.utils.aoa_to_sheet([['Users', ...Object.keys(usersByDoc)]]);
+
+//   let row = 2; // Start from row 2 (1-indexed in Excel)
+//   Array.from(allUsers).sort().forEach(user => {
+//     const rowData = [user];
+//     Object.keys(usersByDoc).forEach(docName => {
+//       rowData.push(usersByDoc[docName].includes(user) ? user : '');
+//     });
+//     XLSX.utils.sheet_add_aoa(worksheet, [rowData], { origin: `A${row}` });
+//     row++;
+//   });
+
+//   XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+//   const excelPath = path.join(__dirname, 'Messages', 'Usernames', 'all_users.xlsx');
+//   XLSX.writeFile(workbook, excelPath);
+//   console.log(`Excel file with all user names written to ${excelPath}`);
+// }
 
 async function ensureDirectoriesExist() {
   const dirs = [
     path.join(__dirname, 'Messages', 'Docs'),
     path.join(__dirname, 'Messages', 'JSON'),
-    path.join(__dirname, 'Messages', 'Usernames')
+    path.join(__dirname, 'Messages', 'Usernames'),
+    path.join(__dirname, 'Messages', 'UserData')  // Changed from 'UserIcons' to 'UserData'
   ];
 
   for (const dir of dirs) {
