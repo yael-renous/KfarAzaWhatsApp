@@ -34,7 +34,8 @@ const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
 const relativeUserIconXPadding = 0.013; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
-const relativeBlurAmount = 0.008; // Relative to canvas height
+const relativeBlurAmount = 0.01; // Relative to canvas height
+const relativeChatBoxRadius = 0.01; // Relative to canvas width
 
 let distanceBetweenUsernameAndMessage;
 let distanceBetweenTimeAndMessage;
@@ -50,6 +51,7 @@ let userIconSize;
 let userIconXPadding;
 let userIconYPadding;
 let blurPixels;
+let chatBoxRadius;
 // -----------------------
 
 //------ chat data ------
@@ -98,7 +100,7 @@ function calculateFinalSizes() {
   startOfChatYPos = topBarHeight + height * 0.01;
   endOfChatYPos = height - bottomBarHeight - height * 0.03;
 
-  distanceBetweenUsernameAndMessage = height * 0.023;
+  distanceBetweenUsernameAndMessage = height * 0.025;
   distanceBetweenTimeAndMessage = height * 0.005;
   distanceBetweenMessages = height * 0.05;
   messageXOffset = width * 0.03;
@@ -113,6 +115,7 @@ function calculateFinalSizes() {
   userIconXPadding = relativeUserIconXPadding * height;
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
+  chatBoxRadius = relativeChatBoxRadius * width;
 }
 
 ///----- Draw Functions -----
@@ -256,10 +259,10 @@ function renderMessageImages() {
 function drawBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
-  blurColor.setAlpha(2);
+  blurColor.setAlpha(1);
   graphic.fill(blurColor);
-  for (let i = -blurPixels; i < blurPixels; i++) {
-    for (let j = -blurPixels; j < blurPixels; j++) {
+  for (let i = -0; i < blurPixels; i++) {
+    for (let j = -0; j < blurPixels; j++) {
       graphic.text(text, x - i, y + j);
     }
   }
@@ -290,10 +293,10 @@ function drawChatBox(graphic, message, userData) {
   let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
   let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopX = Math.min(messageEndX, endTimestampX);
-  let leftTopY = 0-chatBoxYPadding;
+  let leftTopY = 0;
   let rightBottomX = width - wholeMessagePadding + chatBoxXPadding;
   let rightBottomY = message.height + chatBoxYPadding;
-  graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY,10  , 10, 10, 10);
+  graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, chatBoxRadius);
   graphic.pop();
 }
 
