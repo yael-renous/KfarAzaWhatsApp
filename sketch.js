@@ -2,7 +2,6 @@ let chatReader;
 let userData = {};
 let messages = [];
 let userIcons = {};
-let isAutoMode = false;
 const censorString = "צנזורמערכתי";
 
 //--screen management--
@@ -30,14 +29,14 @@ let yellowChatBoxColor;
 
 let endOfChatYPos;
 let startOfChatYPos;
-const relativeMaxNumOfCharsInLine = 0.03;
-const relativeMessageFontSize = 0.02; // Relative to canvas height
+const relativeMaxNumOfCharsInLine = 0.05;
+const relativeMessageFontSize = 0.05; // Relative to canvas width
 const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
 const relativeUserIconXPadding = 0.013; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
 const relativeBlurAmount = 0.01; // Relative to canvas height
-const relativeChatBoxRadius = 0.015; // Relative to canvas width
+const relativeChatBoxRadius = 0.03; // Relative to canvas width
 
 let maxNumOfCharsInLine;
 let distanceBetweenUsernameAndMessage;
@@ -64,9 +63,9 @@ let currentDate;
 //-----------------------
 
 //------ auto play ------
-let autoPlayInterval;
-let isAutoPlaying = true;
-const autoPlayDelay = 1000; // 1 second delay
+
+let isAutoMode = false;
+
 //-----------------------
 
 function preload() {
@@ -83,7 +82,6 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   calculateFinalSizes();
-
   textFont('Arial');
 
   if (typeof WhatsAppReader !== 'undefined') {
@@ -95,7 +93,19 @@ function setup() {
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
+
+  window.addEventListener('keydown', handleControlShiftEnter);
 }
+
+function handleControlShiftEnter(event) {
+  if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
+    console.log('Control + Shift + Enter detected');
+    // Call your specific function here
+    isAutoMode=true;
+    //clean view
+  }
+}
+
 
 function calculateFinalSizes() {
   topBarHeight = height * 0.1;
@@ -108,18 +118,23 @@ function calculateFinalSizes() {
   distanceBetweenMessages = height * 0.05;
   messageXOffset = width * 0.03;
   timeXOffset = width * 0.01;
-  wholeMessagePadding = width * 0.12;
+  wholeMessagePadding = width * 0.15;
   chatBoxYPadding = height * 0.015;
   chatBoxXPadding = width * 0.02;
 
-  messageFontSize = relativeMessageFontSize * height;
+  messageFontSize = relativeMessageFontSize * width;
   timestampFontSize = relativeTimestampFontSize * height;
   userIconSize = relativeUserIconSize * height;
   userIconXPadding = relativeUserIconXPadding * height;
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
-  maxNumOfCharsInLine = Math.round(relativeMaxNumOfCharsInLine * width);
+
+  // Calculate max number of characters in a line based on message size and width of the screen
+  let sampleText = "כ"; // Use a sample character to estimate width
+  textSize(messageFontSize);
+  let charWidth = textWidth(sampleText);
+  maxNumOfCharsInLine = Math.floor((width - wholeMessagePadding-messageXOffset) / charWidth);
 }
 
 ///----- Draw Functions -----
@@ -175,8 +190,12 @@ function displayMessages() {
 
 function draw() {
   background(chatBgImage);
-  displayMessages();
-  drawUI();
+  if(isAutoMode){
+  }
+  else{
+    displayMessages();
+  }
+    drawUI();
 }
 
 //---------------------------------------
@@ -260,7 +279,10 @@ function renderMessageImages() {
 function drawBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
-  blurColor.setAlpha(1);
+  let alphaValue =1;
+  if(width<800)
+    alphaValue = 4;
+  blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
   for (let i = -0; i < blurPixels; i++) {
     for (let j = -0; j < blurPixels; j++) {
@@ -286,14 +308,17 @@ function drawChatBox(graphic, message, userData) {
   }
   graphic.fill(bgColor);
 
-  graphic.textSize(timestampFontSize);
+  graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
+  let usernameEndX = graphic.width - wholeMessagePadding - graphic.textWidth(':שם משתמש') - chatBoxXPadding;
+  let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
+
+  graphic.textSize(timestampFontSize);
   let timestampWidth = graphic.textWidth(message.time);
   let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-  graphic.textSize(messageFontSize);
-  let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
+  
   let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
-  let leftTopX = Math.min(messageEndX, endTimestampX);
+  let leftTopX = Math.min(Math.min(messageEndX, endTimestampX), usernameEndX);
   let leftTopY = 0;
   let rightBottomX = width - wholeMessagePadding + chatBoxXPadding;
   let rightBottomY = message.height + chatBoxYPadding;
@@ -348,7 +373,7 @@ function drawTimestamp(graphic, message, timestampColor) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
   graphic.textAlign(LEFT, TOP);
   graphic.textSize(timestampFontSize);
   graphic.fill(timestampColor);
