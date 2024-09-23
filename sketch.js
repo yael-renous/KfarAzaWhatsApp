@@ -5,6 +5,13 @@ let userIcons = {};
 let circleMask;
 let isAutoMode = false;
 
+
+//------ ticker ------
+let currentTickerDate;
+let currentTickerTime;
+//-----------------------
+
+
 //------ chat assets ------
 let chatBgImage;
 let barColors;
@@ -25,14 +32,14 @@ const messageFontSize = 18;
 const timestampFontSize = 12;
 let distanceBetweenUsernameAndMessage = 20;
 let distanceBetweenTimeAndMessage = 20;
-let distanceBetweenMessages = 0;
+let distanceBetweenMessages = 50;
 let messageXOffset = 30;
 let timeXOffset = 10;
 let wholeMessagePadding = 50;
 let chatBoxYPadding = 4;
 let chatBoxXPadding = 20;
 const userIconSize = 30; // Diameter of the icon
-const userIconXPadding = 10;
+const userIconXPadding = 6;
 const userIconYPadding = 2;
 // -----------------------
 
@@ -128,21 +135,24 @@ function drawTopBar() {
 
 function drawTimeTicker() {
   push();
-  const tickerbackground = "black";
-  let date = "7 באוקטובר";
-  let time = "19:37:02";
-  const tickerTextColor = "white";
-  const tickerFontSize = 18;
-  const tickerX = width / 2;
-  const tickerY = topBarHeight / 4;
+  rectMode(CENTER);
+  fill("black");
+  rect(width/2, topBarHeight/4, width/2, messageFontSize,300,300,300,300);
+  // const tickerbackground = "black";
+  // let date = "7 באוקטובר";
+  // let time = "19:37:02";
+  // const tickerTextColor = "white";
+  // const tickerFontSize = 18;
+  // const tickerX = width / 2;
+  // const tickerY = topBarHeight / 4;
 
-  rectMode(CENTER)
+  // rectMode(CENTER)
 
-  fill(tickerbackground);
-  rect(tickerX, tickerY, textWidth, tickerFontSize * 2, 300, 300, 300, 300);
-  fill(tickerTextColor);
-  text(date, tickerX - date.length * tickerFontSize / 2, tickerY);
-  text(time, tickerX + date.length * tickerFontSize / 2, tickerY);
+  // fill(tickerbackground);
+  // rect(tickerX, tickerY, textWidth, tickerFontSize * 2, 300, 300, 300, 300);
+  // fill(tickerTextColor);
+  // text(date, tickerX - date.length * tickerFontSize / 2, tickerY);
+  // text(time, tickerX + date.length * tickerFontSize / 2, tickerY);
   pop();
 }
 
@@ -188,7 +198,7 @@ function displayMessages() {
     textSize(timestampFontSize);
     fill(timestampColor);
     let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-    text(message.time, timestampOffset, message.y + message.height);
+    text(message.time, timestampOffset, message.y + message.height-timestampFontSize-distanceBetweenTimeAndMessage);
   }
   pop();
 }
@@ -231,7 +241,7 @@ function drawChatBox(message) {
   let leftTopX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopY = message.y - chatBoxYPadding;
   let rightBottomX = width - wholeMessagePadding + 7;
-  let rightBottomY = message.y + message.height + timestampFontSize + chatBoxYPadding;
+  let rightBottomY = message.y + message.height   + chatBoxYPadding;
   rect(leftTopX, leftTopY, rightBottomX, rightBottomY, 10, 10, 10, 10);
   pop();
 }
@@ -307,10 +317,10 @@ function setMessageYPositions() {
     messages[i].height = calculateMessageHeight(messages[i]);
     let previousMessageY = startOfChatYPos;
     if (i > 0) {
-      previousMessageY = messages[i - 1].y + messages[i - 1].height;
+      previousMessageY = messages[i - 1].y + messages[i - 1].height ;
     }
 
-    messages[i].y = previousMessageY + messages[i].height + distanceBetweenMessages;
+    messages[i].y = previousMessageY + distanceBetweenMessages;
   }
 }
 
@@ -463,10 +473,11 @@ function calculateMessageHeight(message) {
   // Adjust the height based on the number of lines
   let messageHeight = lines * messageFontSize;
   // Add extra space for username and time
+  console.log("message - " + message.message + " - num of lines - " + lines + " - height - " + messageHeight);
   return messageHeight 
   +timestampFontSize
   + distanceBetweenUsernameAndMessage
-  //  + distanceBetweenTimeAndMessage;
+   + distanceBetweenTimeAndMessage;
 }
 
 // function mouseWheel(event) {
