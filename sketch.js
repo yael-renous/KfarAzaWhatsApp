@@ -30,16 +30,16 @@ let endOfChatYPos = 10;
 let startOfChatYPos = 10;
 const messageFontSize = 18;
 const timestampFontSize = 12;
-let distanceBetweenUsernameAndMessage = 20;
-let distanceBetweenTimeAndMessage = 20;
+let distanceBetweenUsernameAndMessage = 25;
+let distanceBetweenTimeAndMessage = 10;
 let distanceBetweenMessages = 50;
 let messageXOffset = 30;
 let timeXOffset = 10;
 let wholeMessagePadding = 50;
-let chatBoxYPadding = 4;
+let chatBoxYPadding = 10;
 let chatBoxXPadding = 20;
 const userIconSize = 30; // Diameter of the icon
-const userIconXPadding = 6;
+const userIconXPadding = 8;
 const userIconYPadding = 2;
 // -----------------------
 
@@ -81,21 +81,12 @@ function setup() {
     chatReader = new WhatsAppReader();
     console.log('WhatsAppReader is defined');
 
-    chat = groups.youngPrivate;
+    chat = groups.moms;
     loadChat(chat);
 
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
-  //TODO make all user icons
-  // let autoPlayButton = createButton('Auto Play');
-  // autoPlayButton.position(10, 10);
-  // autoPlayButton.mousePressed(toggleAutoPlay);
-
-  // Create a single reusable graphics buffer
-  // usernameBuffer = createGraphics(width, messageFontSize * 2);
-  // usernameBuffer.textAlign(RIGHT, TOP);
-  // usernameBuffer.textSize(messageFontSize);
 }
 
 ///----- Draw Functions -----
@@ -137,7 +128,7 @@ function drawTimeTicker() {
   push();
   rectMode(CENTER);
   fill("black");
-  rect(width/2, topBarHeight/4, width/2, messageFontSize,300,300,300,300);
+  rect(width / 2, topBarHeight / 4, width / 2, messageFontSize, 300, 300, 300, 300);
   // const tickerbackground = "black";
   // let date = "7 באוקטובר";
   // let time = "19:37:02";
@@ -167,96 +158,21 @@ function drawBottomBar() {
 
 
 function displayMessages() {
-  push();
-  textAlign(RIGHT, TOP);
   for (let message of messages) {
-    textSize(messageFontSize);
-    let contentWidth = textWidth(message.message);
-    drawChatBox(message);
-    drawUserIcon(message);
+    image(message.graphic, 0, message.y);
 
-    // Simulate blur effect for username
-    let username = ':שם משתמש';
-    let userColor = color(userData[message.userName].color);
-    userColor.setAlpha(100); // Reduce opacity
-    fill(userColor);
-    // let blurAmount = 0;
-    // for (let i = -blurAmount; i <= blurAmount; i++) {
-    //   for (let j = -blurAmount; j <= blurAmount; j++) {
-    //     text(username, width - wholeMessagePadding + i, message.y + j);
-    //   }
-    // }
-    text(username, width - wholeMessagePadding, message.y);
-
-    // Draw the rest of the message normally
-   
-    fill(textColor);
-    // if(userData[message.userName].status == 'M')
-    //   fill("white");
-    text(message.message + '\u200F', width - wholeMessagePadding - messageXOffset, message.y + distanceBetweenUsernameAndMessage);
-
-    textSize(timestampFontSize);
-    fill(timestampColor);
-    let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-    text(message.time, timestampOffset, message.y + message.height-timestampFontSize-distanceBetweenTimeAndMessage);
+    //draw user icon
+    let icon = userData[message.userName].img;
+    const iconX = width - userIconXPadding - userIconSize; // Position X
+    const iconY = message.y + message.height - 20;
+    image(icon, iconX, iconY, userIconSize, userIconSize);
   }
-  pop();
 }
-
-function drawUserIcon(message) {
-  push();
-  imageMode(CENTER);
-  const iconX = width - userIconXPadding - userIconSize / 2; // Position X
-  const iconY = message.y  + message.height; // Position Y
-  let img = userData[message.userName].img;
-  image(img, iconX, iconY, userIconSize, userIconSize);
-  pop();
-}
-
-
-function drawChatBox(message) {
-  push();
-  //make a chat box
-  noStroke();
-  rectMode(CORNERS);
-  drawingContext.shadowOffsetY = 1.3;
-  drawingContext.shadowBlur = 5;
-  drawingContext.shadowColor = 'grey';
-  let bgColor = chatBoxBgColor;
-  if (userData[message.userName].status == 'M') {
-    bgColor = redChatBoxColor;
-  }
-  else if (userData[message.userName].status == 'H') {
-    bgColor = yellowChatBoxColor;
-  }
-  fill(bgColor);
-
-  textSize(messageFontSize);
-  let contentWidth = textWidth(message.message);
-  textSize(timestampFontSize);
-  let timestampWidth = textWidth(message.time);
-  //console.log(contentWidth);
-
-  let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-  let leftTopX = timestampOffset - timestampWidth - chatBoxXPadding;
-  let leftTopY = message.y - chatBoxYPadding;
-  let rightBottomX = width - wholeMessagePadding + 7;
-  let rightBottomY = message.y + message.height   + chatBoxYPadding;
-  rect(leftTopX, leftTopY, rightBottomX, rightBottomY, 10, 10, 10, 10);
-  pop();
-}
-
 
 function draw() {
-  background(chatBgImage); // Use the loaded image as background
-  // for (let i = 0; i < messages.length; i++) {
-  //   console.log(messageImages[i]);
-  //   image(messageImages[i], 0, 0);
-  // }
-  // image(chatCanvas, 0, chatCanvasYOffset);
+  background(chatBgImage); // Use the loaded imagƒme as background
   displayMessages();
   drawUI();
-
 }
 
 //---------------------------------------
@@ -269,7 +185,7 @@ async function loadChat(chat) {
     await loadUserData(rawUserData);
     addMessagesNewLines();
     setMessageYPositions();
-    //renderMessageImages();
+    renderMessageImages();
   } else {
     console.error(`Failed to load chat: ${chat.englishName}`);
   }
@@ -305,166 +221,158 @@ async function loadUserData(rawUserData) {
       userData[rawUserData[i].username] = { img: img, color: rawUserData[i].color, status: rawUserData[i].status }
       // userIcons[rawUserData[i].username] = img;
     }
-    console.log('All user icons loaded' + rawUserData);
+    // console.log('All user icons loaded' + rawUserData);
   } catch (error) {
     console.error('Error loading user icons:', error);
   }
 }
 
-//TODO CALCULATE MESSAGE Y POSITIONS BASED ON MESSAGE HEIGHT
 function setMessageYPositions() {
   for (let i = 0; i < messages.length; i++) {
     messages[i].height = calculateMessageHeight(messages[i]);
     let previousMessageY = startOfChatYPos;
     if (i > 0) {
-      previousMessageY = messages[i - 1].y + messages[i - 1].height ;
+      previousMessageY = messages[i - 1].y + messages[i - 1].height;
     }
 
     messages[i].y = previousMessageY + distanceBetweenMessages;
   }
 }
 
-let messageImages = [];
-let chatCanvas;
+
+
 function renderMessageImages() {
-  chatCanvas = createGraphics(width, height);
-  displayMessages(chatCanvas);
+  for (let message of messages) {
+    let messageGraphic = createGraphics(width, message.height + chatBoxYPadding * 2);
+    // Draw a rectangle around the image for debugging
+    // messageGraphic.push();
+    // messageGraphic.noFill();
+    // messageGraphic.stroke('red');
+    // messageGraphic.rect(0, 0, messageGraphic.width, messageGraphic.height);
+    // messageGraphic.pop();
+
+
+    messageGraphic.textFont('Arial');
+
+    drawChatBox(messageGraphic, message, userData);
+    drawUsername(messageGraphic, message, userData);
+
+    let censorString = "צנזורמערכתי"; // Replace with your actual censor string
+    let blurAmount = 8; // Adjust the blur amount as needed
+    drawMessageContent(messageGraphic, message, censorString, blurAmount, textColor);
+
+    let contentWidth = messageGraphic.textWidth(message.message);
+    let timestampWidth = messageGraphic.textWidth(message.time);
+    let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+    drawTimestamp(messageGraphic, message, timestampOffset, timestampColor);
+
+    // Store the graphic in the message object
+    message.graphic = messageGraphic;
+  }
 }
 
-// function renderMessageImages() {
+function drawBlurredText(graphic, text, x, y, blurAmount, color) {
+  graphic.push();
+  let blurColor =color;
+  blurColor.setAlpha(2);
+  graphic.fill(blurColor);
+  for (let i = 0; i < blurAmount; i++) {
+    for (let j = 0; j < blurAmount; j++) {
+      graphic.text(text, x + i, y + j);
+    }
+  }
+  color.setAlpha(255);
+  graphic.pop();
+}
 
-//   messageImages = messages.map(message => {
-//     // console.log(message.userName);
-//     let img = createGraphics(width, 300);
-//     return displayMessages(message,img);
-//     // img.textAlign(RIGHT, TOP);
-//     // img.textSize(messageFontSize);
-//     // img.textFont('Arial');
+function drawChatBox(graphic, message, userData) {
+  graphic.push();
+  graphic.noStroke();
+  graphic.rectMode(CORNERS);
+  graphic.drawingContext.shadowOffsetY = 1.3;
+  graphic.drawingContext.shadowBlur = 5;
+  graphic.drawingContext.shadowColor = 'grey';
+  let bgColor = chatBoxBgColor;
+  if (userData[message.userName].status == 'M') {
+    bgColor = redChatBoxColor;
+  } else if (userData[message.userName].status == 'H') {
+    bgColor = yellowChatBoxColor;
+  }
+  graphic.fill(bgColor);
 
-//     // // // Draw chat box
-//     // // img.noStroke();
-//     // // img.fill(chatBoxBgColor);
-//     // // let contentWidth = img.textWidth(message.message);
-//     // // img.rect(width - contentWidth - wholeMessagePadding, 0, contentWidth + wholeMessagePadding, img.height, 10);
+  graphic.textSize(timestampFontSize);
+  let contentWidth = graphic.textWidth(message.message);
+  let timestampWidth = graphic.textWidth(message.time);
+  let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  graphic.textSize(messageFontSize);
+  let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
+  let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
+  let leftTopX = Math.min(messageEndX, endTimestampX);
+  let leftTopY = 0;
+  let rightBottomX = width - wholeMessagePadding + 7;
+  let rightBottomY = message.height + chatBoxYPadding;
+  graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, 10, 10, 10, 10);
+  graphic.pop();
+}
 
-//     // // // Draw username (with blur effect)
-//     // // let username = ':שם משתמש';
-//     // // let userColor = color(userData[message.userName].color);
-//     // // // let userColor = color(0,0,0);
-//     // // userColor.setAlpha(50);
-//     // // img.fill(userColor);
-//     // // let blurAmount = 3;
-//     // // for (let i = -blurAmount; i <= blurAmount; i++) {
-//     // //   for (let j = -blurAmount; j <= blurAmount; j++) {
-//     // //     img.text(username, width - wholeMessagePadding + i, j);
-//     // //   }
-//     // // }
+function drawUsername(graphic, message, userData) {
+  graphic.push();
+  graphic.textAlign(RIGHT, TOP);
+  graphic.textSize(messageFontSize);
+  let username = ':שם משתמש';
+  let userColor = color(userData[message.userName].color);
+  // userColor.setAlpha(5);
+  // graphic.fill(userColor);
 
-//     // // Draw message
-//     // img.fill(textColor);
-//     // img.text(message.message + '\u200F', width - wholeMessagePadding - 30, distanceBetweenUsernameAndMessage);
+  // Apply blur effect to the username
+  let blurAmount = 10; // Adjust the blur amount as needed
+  drawBlurredText(graphic, username, width - wholeMessagePadding, 0, blurAmount, userColor);
 
-//     // // Draw timestamp
-//     // img.textSize(timestampFontSize);
-//     // img.text(message.time, width - wholeMessagePadding - 200, distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage);
+  graphic.pop();
+}
 
-//     // // Draw user icon
-//     // push();
-//     // // imageMode(CENTER);
-//     // const iconX = width - userIconXPadding - userIconSize / 2; // Position X
-//     // const iconY = message.y + userIconSize + userIconYPadding; // Position Y
-//     // let icon = userData[message.userName].img;
-//     // // image(img, iconX, iconY,userIconSize,userIconSize);
-//     // //console.log(icon);
-//     // img.image(icon, width / 2, height / 2, userIconSize, userIconSize);
-//     // pop();
+function drawMessageContent(graphic, message, censorString, blurAmount, textColor) {
+  graphic.push();
+  graphic.textAlign(RIGHT, TOP);
+  graphic.textSize(messageFontSize);
+  graphic.fill(textColor);
 
-//     // return img;
-//   });
-// }
+  let lines = message.message.split('\n');
+  let y = distanceBetweenUsernameAndMessage;
 
+  for (let line of lines) {
+    let parts = line.split(censorString);
+    let x = width - wholeMessagePadding - messageXOffset;
 
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0) {
+        // Draw the censored string with blur effect
+        drawBlurredText(graphic, censorString, x, y, blurAmount, textColor);
+        x -= graphic.textWidth(censorString) + graphic.textWidth(' '); // Move x position to the right by the width of the censored string plus a space
+      }
 
-// function displayMessages(img) {
-//   // console.log(message);
-//   img.push();
-//   img.textAlign(RIGHT, TOP);
-//   let messageXOffset = 30;
-//   let timeXOffset = 200;
+      if (parts[i] !== "") {
+        // Draw the current part of the message
+        graphic.text(parts[i] + '\u200F', x, y);
+        x -= graphic.textWidth(parts[i] + '\u200F'); // Move x position to the right by the width of the current part
+      }
+    }
 
-//   for (let message of messages) {
-//     img.textSize(messageFontSize);
-//     // message.height = calculateMessageHeight(message);
-//     message.height = 150;
-//      drawChatBox(message, img);
-//     img = drawUserIcon(message,img);
+    y += messageFontSize; // Move y position to the next line
+  }
 
-//     // Simulate blur effect for username
-//     let username = ':שם משתמש';
-//     let userColor = color(userData[message.userName].color);
-//     userColor.setAlpha(3); // Reduce opacity
-//     img.fill(userColor);
-//     let blurAmount = 3;
-//     for (let i = -blurAmount; i <= blurAmount; i++) {
-//       for (let j = -blurAmount; j <= blurAmount; j++) {
-//         img.text(username, width - wholeMessagePadding + i, message.y + j);
-//       }
-//     }
+  graphic.pop();
+}
 
+function drawTimestamp(graphic, message, timestampOffset, timestampColor) {
+  graphic.push();
+  graphic.textAlign(RIGHT, TOP);
+  graphic.textSize(timestampFontSize);
+  graphic.fill(timestampColor);
+  graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage);
+  graphic.pop();
+}
 
-//     // Draw the rest of the message normally
-//     img.fill(textColor);
-//     img.text(message.message + '\u200F', width - wholeMessagePadding - messageXOffset, message.y + distanceBetweenUsernameAndMessage);
-
-//     img.textSize(timestampFontSize);
-//     img.text(message.time, width - wholeMessagePadding - timeXOffset, message.y + distanceBetweenUsernameAndMessage + distanceBetweenTimeAndMessage);
-//   }
-//   img.pop();
-//   return img;
-// }
-
-// function drawUserIcon(message, img) {
-//   img.push();
-//   img.imageMode(CENTER);
-//   const iconX = width - userIconXPadding - userIconSize / 2; // Position X
-//   const iconY = message.y + userIconSize + userIconYPadding; // Position Y
-//   let icon = userData[message.userName].img;
-//   img.image(icon, iconX, iconY, userIconSize, userIconSize);
-//   img.pop();
-//   return img;
-// }
-
-// function drawChatBox(message, img) {
-//   img.push();
-//   //make a chat box
-//   img.noStroke();
-//   img.rectMode(CORNERS);
-//   img.drawingContext.shadowOffsetY = 1.3;
-//   img.drawingContext.shadowBlur = 5;
-//   img.drawingContext.shadowColor = 'grey';
-//   let bgColor = chatBoxBgColor;
-//   if (userData[message.userName].status == 'M') {
-//     bgColor = 'red';
-//   }
-//   else if (userData[message.userName].status == 'H') {
-//     bgColor = 'yellow';
-//   }
-//   img.fill(bgColor);
-//   //x = end of message
-//   //y = same y
-//   //opposite x = width-wholeMessagePadding
-//   //opposite y = height
-//   //height = message height
-//   let contentWidth = textWidth(message.message);
-
-//   img.rect(width - contentWidth, message.y - chatBoxPadding, width - wholeMessagePadding + chatBoxPadding, message.y + 50, 10, 10, 10, 10);
-//   img.pop();
-//   return img;
-// }
-
-
-
-let chatCanvasYOffset = 0;
 
 
 function calculateMessageHeight(message) {
@@ -473,11 +381,11 @@ function calculateMessageHeight(message) {
   // Adjust the height based on the number of lines
   let messageHeight = lines * messageFontSize;
   // Add extra space for username and time
-  console.log("message - " + message.message + " - num of lines - " + lines + " - height - " + messageHeight);
-  return messageHeight 
-  +timestampFontSize
-  + distanceBetweenUsernameAndMessage
-   + distanceBetweenTimeAndMessage;
+  // console.log("message - " + message.message + " - num of lines - " + lines + " - height - " + messageHeight);
+  return messageHeight
+    + timestampFontSize
+    + distanceBetweenUsernameAndMessage
+    + distanceBetweenTimeAndMessage;
 }
 
 // function mouseWheel(event) {
@@ -503,24 +411,4 @@ function mouseWheel(event) {
   return false; // Prevent default scrolling
 }
 
-function loadNextMessage() {
-  let message = chatReader.getNextMessage();
-  if (message) {
-    messages.push(message);
-    if (messages.length > 20) {
-      messages.shift(); // Remove the oldest message if we have more than 20
-    }
-  } else {
-    console.log('No more messages');
-  }
-}
 
-function toggleAutoPlay() {
-  if (isAutoPlaying) {
-    clearInterval(autoPlayInterval);
-    isAutoPlaying = false;
-  } else {
-    autoPlayInterval = setInterval(loadNextMessage, autoPlayDelay);
-    isAutoPlaying = true;
-  }
-}
