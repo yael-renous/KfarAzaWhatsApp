@@ -2,7 +2,6 @@ let chatReader;
 let userData = {};
 let messages = [];
 let userIcons = {};
-let circleMask;
 let isAutoMode = false;
 
 
@@ -20,7 +19,7 @@ let currentTickerTime;
 
 //------ chat assets ------
 let chatBgImage;
-let barColors;
+let topBarColor;
 let textColor;
 let timestampColor;
 let font;
@@ -64,10 +63,9 @@ const autoPlayDelay = 1000; // 1 second delay
 //-----------------------
 
 function preload() {
-  chatBgImage = loadImage('Assets/Images/whatsapp_bg.jpg');
-  circleMask = loadImage('Assets/image-mask.png');// Load the WhatsApp background image
-  barColors = "#fcfbf9";
-  chatBoxBgColor = "#fcfbf9";
+  chatBgImage = loadImage('Assets/Images/background-light.jpg');
+  topBarColor = "#016b61";
+  chatBoxBgColor = "#ffffff";
   redChatBoxColor = "#bd0202";
   yellowChatBoxColor = "#f5d905";
   timestampColor = "grey";
@@ -106,13 +104,17 @@ function drawUI() {
 function drawTopBar() {
   push();
   //bar
-  stroke("#dadada")
-  fill(barColors);
+  // stroke("#dadada")
+  noStroke();
+  drawingContext.shadowOffsetY = 1.3;
+  drawingContext.shadowBlur = 5;
+  drawingContext.shadowColor = 'grey';
+  fill(topBarColor);
   rect(0, 0, width, 90);
 
   //group name
-  fill("black");
-  textSize(18);
+  fill("white");
+  textSize(23);
   textAlign(CENTER, TOP);
   //console.log(chat.title);
   text(chat.title, width / 2, topBarHeight / 2);
@@ -156,7 +158,7 @@ function drawTimeTicker() {
 function drawBottomBar() {
   push();
   stroke("#dadada")
-  fill(barColors);
+  fill("white");
   rect(0, height - 80, width, 80);
   // Draw input field and icons here
   pop();
