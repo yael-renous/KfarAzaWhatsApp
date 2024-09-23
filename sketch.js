@@ -35,7 +35,7 @@ const relativeUserIconSize = 0.04; // Relative to canvas height
 const relativeUserIconXPadding = 0.013; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
 const relativeBlurAmount = 0.01; // Relative to canvas height
-const relativeChatBoxRadius = 0.01; // Relative to canvas width
+const relativeChatBoxRadius = 0.015; // Relative to canvas width
 
 let distanceBetweenUsernameAndMessage;
 let distanceBetweenTimeAndMessage;
