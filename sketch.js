@@ -30,10 +30,10 @@ let yellowChatBoxColor;
 let endOfChatYPos;
 let startOfChatYPos;
 const relativeMaxNumOfCharsInLine = 0.05;
-const relativeMessageFontSize = 0.05; // Relative to canvas width
+const relativeMessageFontSize = 0.018; // Relative to canvas height
 const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
-const relativeUserIconXPadding = 0.013; // Relative to canvas height
+const relativeUserIconXPadding = 0.0135; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
 const relativeBlurAmount = 0.01; // Relative to canvas height
 const relativeChatBoxRadius = 0.03; // Relative to canvas width
@@ -65,6 +65,10 @@ let currentDate;
 //------ auto play ------
 
 let isAutoMode = false;
+let currentMessageIndex = 0;
+const messageDisplayInterval = 2000; // Time interval in milliseconds (e.g., 2000ms = 2 seconds)
+let lastMessageTime = 0;
+let displayedMessages = []; // New array to store messages currently displayed on the screen
 
 //-----------------------
 
@@ -100,9 +104,10 @@ function setup() {
 function handleControlShiftEnter(event) {
   if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
     console.log('Control + Shift + Enter detected');
-    // Call your specific function here
-    isAutoMode=true;
-    //clean view
+    isAutoMode = true;
+    cleanView();
+    currentMessageIndex = 0;
+    lastMessageTime = millis(); // Initialize the timestamp
   }
 }
 
@@ -122,7 +127,7 @@ function calculateFinalSizes() {
   chatBoxYPadding = height * 0.015;
   chatBoxXPadding = width * 0.02;
 
-  messageFontSize = relativeMessageFontSize * width;
+  messageFontSize = relativeMessageFontSize * height;
   timestampFontSize = relativeTimestampFontSize * height;
   userIconSize = relativeUserIconSize * height;
   userIconXPadding = relativeUserIconXPadding * height;
@@ -177,7 +182,7 @@ function drawBottomBar() {
   pop();
 }
 
-function displayMessages() {
+function displayAllMessages() {
   for (let message of messages) {
     image(message.graphic, 0, message.y);
 
@@ -188,16 +193,55 @@ function displayMessages() {
   }
 }
 
-function draw() {
-  background(chatBgImage);
-  if(isAutoMode){
+function addNextMessage(){
+  if (currentMessageIndex < messages.length) {
+    let nextMessage = messages[currentMessageIndex];
+    displayedMessages.push(nextMessage);
+    currentMessageIndex++;
+
+    // Check if the new message is out of the screen
+    if (nextMessage.y + nextMessage.height > endOfChatYPos) {
+      // Scroll up by the height of the new message plus some padding
+      let scrollAmount = nextMessage.height+distanceBetweenMessages + 10;
+      handleScroll(-scrollAmount);
+    }
+  } else {
+    isAutoMode = false; // Stop auto mode when all messages are displayed
   }
-  else{
-    displayMessages();
+}
+function displayAutoMessages() {
+  for (let message of displayedMessages) {
+      image(message.graphic, 0, message.y);
+
+      let icon = userData[message.userName].img;
+      const iconX = width - userIconXPadding - userIconSize;
+      const iconY = message.y + message.height - height * 0.02;
+      image(icon, iconX, iconY, userIconSize, userIconSize);
   }
-    drawUI();
 }
 
+function draw() {
+  background(chatBgImage);
+
+  if (isAutoMode) {
+    let currentTime = millis();
+    if (currentTime - lastMessageTime >= messageDisplayInterval) {
+      addNextMessage();
+      lastMessageTime = currentTime; // Update the timestamp
+    }
+    displayAutoMessages();
+  } else {
+    displayAllMessages();
+  }
+
+  drawUI();
+}
+
+function cleanView(){
+  background(chatBgImage);
+  setMessageYPositions();
+  drawUI();
+}
 //---------------------------------------
 async function loadChat(chat) {
   let success = await chatReader.loadChat(chat.englishName);
@@ -282,6 +326,7 @@ function drawBlurredText(graphic, text, x, y, color) {
   let alphaValue =1;
   if(width<800)
     alphaValue = 4;
+  // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
   for (let i = -0; i < blurPixels; i++) {
@@ -390,6 +435,16 @@ function calculateMessageHeight(message) {
     + distanceBetweenTimeAndMessage;
 }
 
+// function handleAutoScroll(amount){
+//   // for (let m of displayedMessages) {
+//   //   // console.log("displayed message: ",message.y);
+//   //   m.y += amount;
+//   // }
+//   for (let message of messages) {
+//     // console.log("message: ",message.y);
+//     message.y += amount;
+//   }
+// }
 function handleScroll(delta) {
   if (messages[0].y + delta > startOfChatYPos) {
     return;
@@ -403,11 +458,15 @@ function handleScroll(delta) {
 }
 
 function mouseWheel(event) {
+  if(isAutoMode)
+    return;
   handleScroll(-event.delta);
   return false;
 }
 
 function touchMoved() {
+  if(isAutoMode)
+    return;
   let delta = mouseY - pmouseY;
   handleScroll(delta);
   return false;
