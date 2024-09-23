@@ -3,6 +3,7 @@ let userData = {};
 let messages = [];
 let userIcons = {};
 let isAutoMode = false;
+const censorString = "צנזורמערכתי";
 
 //--screen management--
 let currentScreen = "home";
@@ -26,9 +27,10 @@ let chatBoxBgColor;
 let redChatBoxColor;
 let yellowChatBoxColor;
 
-let maxNumOfCharsInLine = 30;
+
 let endOfChatYPos;
 let startOfChatYPos;
+const relativeMaxNumOfCharsInLine = 0.03;
 const relativeMessageFontSize = 0.02; // Relative to canvas height
 const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
@@ -37,6 +39,7 @@ const relativeUserIconYPadding = 0.003; // Relative to canvas height
 const relativeBlurAmount = 0.01; // Relative to canvas height
 const relativeChatBoxRadius = 0.015; // Relative to canvas width
 
+let maxNumOfCharsInLine;
 let distanceBetweenUsernameAndMessage;
 let distanceBetweenTimeAndMessage;
 let distanceBetweenMessages;
@@ -116,6 +119,7 @@ function calculateFinalSizes() {
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
+  maxNumOfCharsInLine = Math.round(relativeMaxNumOfCharsInLine * width);
 }
 
 ///----- Draw Functions -----
@@ -244,13 +248,10 @@ function renderMessageImages() {
     drawChatBox(messageGraphic, message, userData);
     drawUsername(messageGraphic, message, userData);
 
-    let censorString = "צנזורמערכתי";
+
     drawMessageContent(messageGraphic, message, censorString, textColor);
 
-    let contentWidth = messageGraphic.textWidth(message.message);
-    let timestampWidth = messageGraphic.textWidth(message.time);
-    let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-    drawTimestamp(messageGraphic, message, timestampOffset, timestampColor);
+    drawTimestamp(messageGraphic, message, timestampColor);
 
     message.graphic = messageGraphic;
   }
@@ -343,9 +344,12 @@ function drawMessageContent(graphic, message, censorString, textColor) {
   graphic.pop();
 }
 
-function drawTimestamp(graphic, message, timestampOffset, timestampColor) {
+function drawTimestamp(graphic, message, timestampColor) {
   graphic.push();
-  graphic.textAlign(RIGHT, TOP);
+  graphic.textSize(messageFontSize);
+  let contentWidth = graphic.textWidth(message.message);
+  let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  graphic.textAlign(LEFT, TOP);
   graphic.textSize(timestampFontSize);
   graphic.fill(timestampColor);
   graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage);
