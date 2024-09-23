@@ -4,18 +4,14 @@ let messages = [];
 let userIcons = {};
 let isAutoMode = false;
 
-
 //--screen management--
-let currentScreen = "home"
+let currentScreen = "home";
 // -------------------
-
-
 
 //------ ticker ------
 let currentTickerDate;
 let currentTickerTime;
 //-----------------------
-
 
 //------ chat assets ------
 let chatBgImage;
@@ -23,43 +19,49 @@ let topBarColor;
 let textColor;
 let timestampColor;
 let font;
-let topBarHeight = 100;
-let bottomBarHeight = 80;
+let topBarHeight;
+let bottomBarHeight;
 
 let chatBoxBgColor;
 let redChatBoxColor;
 let yellowChatBoxColor;
 
 let maxNumOfCharsInLine = 30;
-let endOfChatYPos = 10;
-let startOfChatYPos = 10;
-const messageFontSize = 18;
-const timestampFontSize = 12;
-let distanceBetweenUsernameAndMessage = 23;
-let distanceBetweenTimeAndMessage = 5;
-let distanceBetweenMessages = 50;
-let messageXOffset = 30;
-let timeXOffset = 10;
-let wholeMessagePadding = 50;
-let chatBoxYPadding = 15;
-let chatBoxXPadding = 20;
-const userIconSize = 30; 
-const userIconXPadding = 8;
-const userIconYPadding = 2;
+let endOfChatYPos;
+let startOfChatYPos;
+const relativeMessageFontSize = 0.02; // Relative to canvas height
+const relativeTimestampFontSize = 0.013; // Relative to canvas height
+const relativeUserIconSize = 0.04; // Relative to canvas height
+const relativeUserIconXPadding = 0.013; // Relative to canvas height
+const relativeUserIconYPadding = 0.003; // Relative to canvas height
+const relativeBlurAmount = 0.008; // Relative to canvas height
+
+let distanceBetweenUsernameAndMessage;
+let distanceBetweenTimeAndMessage;
+let distanceBetweenMessages;
+let messageXOffset;
+let timeXOffset;
+let wholeMessagePadding;
+let chatBoxYPadding;
+let chatBoxXPadding;
+let messageFontSize;
+let timestampFontSize;
+let userIconSize;
+let userIconXPadding;
+let userIconYPadding;
+let blurPixels;
 // -----------------------
 
 //------ chat data ------
 let chat;
 let currentTime;
 let currentDate;
-
 //-----------------------
 
 //------ auto play ------
 let autoPlayInterval;
 let isAutoPlaying = true;
 const autoPlayDelay = 1000; // 1 second delay
-
 //-----------------------
 
 function preload() {
@@ -70,15 +72,13 @@ function preload() {
   yellowChatBoxColor = "#f5d905";
   timestampColor = "grey";
   textColor = color(0, 0, 0);
-  startOfChatYPos = topBarHeight + 10;
-
 }
 
-
 function setup() {
-  createCanvas((windowHeight * 9) / 16, windowHeight);
+  createCanvas(windowWidth, windowHeight);
 
-  endOfChatYPos = height - bottomBarHeight - 30;
+  calculateFinalSizes();
+
   textFont('Arial');
 
   if (typeof WhatsAppReader !== 'undefined') {
@@ -87,10 +87,32 @@ function setup() {
 
     chat = groups.youngPrivate;
     loadChat(chat);
-
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
+}
+
+function calculateFinalSizes() {
+  topBarHeight = height * 0.1;
+  bottomBarHeight = height * 0.08;
+  startOfChatYPos = topBarHeight + height * 0.01;
+  endOfChatYPos = height - bottomBarHeight - height * 0.03;
+
+  distanceBetweenUsernameAndMessage = height * 0.023;
+  distanceBetweenTimeAndMessage = height * 0.005;
+  distanceBetweenMessages = height * 0.05;
+  messageXOffset = width * 0.03;
+  timeXOffset = width * 0.01;
+  wholeMessagePadding = width * 0.12;
+  chatBoxYPadding = height * 0.015;
+  chatBoxXPadding = width * 0.02;
+
+  messageFontSize = relativeMessageFontSize * height;
+  timestampFontSize = relativeTimestampFontSize * height;
+  userIconSize = relativeUserIconSize * height;
+  userIconXPadding = relativeUserIconXPadding * height;
+  userIconYPadding = relativeUserIconYPadding * height;
+  blurPixels = Math.round(relativeBlurAmount * height);
 }
 
 ///----- Draw Functions -----
@@ -103,32 +125,17 @@ function drawUI() {
 
 function drawTopBar() {
   push();
-  //bar
-  // stroke("#dadada")
   noStroke();
   drawingContext.shadowOffsetY = 1.3;
   drawingContext.shadowBlur = 5;
   drawingContext.shadowColor = 'grey';
   fill(topBarColor);
-  rect(0, 0, width, 90);
+  rect(0, 0, width, topBarHeight);
 
-  //group name
   fill("white");
-  textSize(23);
+  textSize(height * 0.023);
   textAlign(CENTER, TOP);
-  //console.log(chat.title);
   text(chat.title, width / 2, topBarHeight / 2);
-
-
-  //group icon
-
-  //back button
-
-  //video icon
-
-  //audio icon
-
-  //info icon
   pop();
 }
 
@@ -136,49 +143,31 @@ function drawTimeTicker() {
   push();
   rectMode(CENTER);
   fill("black");
-  rect(width / 2, topBarHeight / 4, width / 2, messageFontSize, 300, 300, 300, 300);
-  // const tickerbackground = "black";
-  // let date = "7 באוקטובר";
-  // let time = "19:37:02";
-  // const tickerTextColor = "white";
-  // const tickerFontSize = 18;
-  // const tickerX = width / 2;
-  // const tickerY = topBarHeight / 4;
-
-  // rectMode(CENTER)
-
-  // fill(tickerbackground);
-  // rect(tickerX, tickerY, textWidth, tickerFontSize * 2, 300, 300, 300, 300);
-  // fill(tickerTextColor);
-  // text(date, tickerX - date.length * tickerFontSize / 2, tickerY);
-  // text(time, tickerX + date.length * tickerFontSize / 2, tickerY);
+  rect(width / 2, topBarHeight / 4, width / 2, height * 0.02, 300, 300, 300, 300);
   pop();
 }
 
 function drawBottomBar() {
   push();
-  stroke("#dadada")
+  stroke("#dadada");
   fill("white");
-  rect(0, height - 80, width, 80);
-  // Draw input field and icons here
+  rect(0, height - bottomBarHeight, width, bottomBarHeight);
   pop();
 }
-
 
 function displayMessages() {
   for (let message of messages) {
     image(message.graphic, 0, message.y);
 
-    //draw user icon
     let icon = userData[message.userName].img;
-    const iconX = width - userIconXPadding - userIconSize; // Position X
-    const iconY = message.y + message.height - 20;
+    const iconX = width - userIconXPadding - userIconSize;
+    const iconY = message.y + message.height - height * 0.02;
     image(icon, iconX, iconY, userIconSize, userIconSize);
   }
 }
 
 function draw() {
-  background(chatBgImage); // Use the loaded imagƒme as background
+  background(chatBgImage);
   displayMessages();
   drawUI();
 }
@@ -222,14 +211,11 @@ function addMessagesNewLines() {
 async function loadUserData(rawUserData) {
   try {
     for (let i = 0; i < rawUserData.length; i++) {
-
       let icon = rawUserData[i].icon;
       let img = await loadImage(`Assets/UserIcons/${icon}.png`);
       img.resize(userIconSize, userIconSize);
-      userData[rawUserData[i].username] = { img: img, color: rawUserData[i].color, status: rawUserData[i].status }
-      // userIcons[rawUserData[i].username] = img;
+      userData[rawUserData[i].username] = { img: img, color: rawUserData[i].color, status: rawUserData[i].status };
     }
-    // console.log('All user icons loaded' + rawUserData);
   } catch (error) {
     console.error('Error loading user icons:', error);
   }
@@ -247,46 +233,34 @@ function setMessageYPositions() {
   }
 }
 
-
-
 function renderMessageImages() {
   for (let message of messages) {
     let messageGraphic = createGraphics(width, message.height + chatBoxYPadding * 2);
-    // Draw a rectangle around the image for debugging
-    // messageGraphic.push();
-    // messageGraphic.noFill();
-    // messageGraphic.stroke('red');
-    // messageGraphic.rect(0, 0, messageGraphic.width, messageGraphic.height);
-    // messageGraphic.pop();
-
-
     messageGraphic.textFont('Arial');
 
     drawChatBox(messageGraphic, message, userData);
     drawUsername(messageGraphic, message, userData);
 
-    let censorString = "צנזורמערכתי"; // Replace with your actual censor string
-    let blurAmount = 8; // Adjust the blur amount as needed
-    drawMessageContent(messageGraphic, message, censorString, blurAmount, textColor);
+    let censorString = "צנזורמערכתי";
+    drawMessageContent(messageGraphic, message, censorString, textColor);
 
     let contentWidth = messageGraphic.textWidth(message.message);
     let timestampWidth = messageGraphic.textWidth(message.time);
     let timestampOffset = width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
     drawTimestamp(messageGraphic, message, timestampOffset, timestampColor);
 
-    // Store the graphic in the message object
     message.graphic = messageGraphic;
   }
 }
 
-function drawBlurredText(graphic, text, x, y, blurAmount, color) {
+function drawBlurredText(graphic, text, x, y, color) {
   graphic.push();
-  let blurColor =color;
+  let blurColor = color;
   blurColor.setAlpha(2);
   graphic.fill(blurColor);
-  for (let i = 0; i < blurAmount; i++) {
-    for (let j = 0; j < blurAmount; j++) {
-      graphic.text(text, x + i, y + j);
+  for (let i = -blurPixels; i < blurPixels; i++) {
+    for (let j = -blurPixels; j < blurPixels; j++) {
+      graphic.text(text, x - i, y + j);
     }
   }
   color.setAlpha(255);
@@ -316,10 +290,10 @@ function drawChatBox(graphic, message, userData) {
   let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
   let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopX = Math.min(messageEndX, endTimestampX);
-  let leftTopY = 0;
-  let rightBottomX = width - wholeMessagePadding + 7;
+  let leftTopY = 0-chatBoxYPadding;
+  let rightBottomX = width - wholeMessagePadding + chatBoxXPadding;
   let rightBottomY = message.height + chatBoxYPadding;
-  graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, 10, 10, 10, 10);
+  graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY,10  , 10, 10, 10);
   graphic.pop();
 }
 
@@ -329,17 +303,13 @@ function drawUsername(graphic, message, userData) {
   graphic.textSize(messageFontSize);
   let username = ':שם משתמש';
   let userColor = color(userData[message.userName].color);
-  // userColor.setAlpha(5);
-  // graphic.fill(userColor);
 
-  // Apply blur effect to the username
-  let blurAmount = 10; 
-  drawBlurredText(graphic, username, width - wholeMessagePadding, 0, blurAmount, userColor);
+  drawBlurredText(graphic, username, width - wholeMessagePadding, 0, userColor);
 
   graphic.pop();
 }
 
-function drawMessageContent(graphic, message, censorString, blurAmount, textColor) {
+function drawMessageContent(graphic, message, censorString, textColor) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
@@ -354,19 +324,17 @@ function drawMessageContent(graphic, message, censorString, blurAmount, textColo
 
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) {
-        // Draw the censored string with blur effect
-        drawBlurredText(graphic, censorString, x, y, blurAmount, textColor);
-        x -= graphic.textWidth(censorString) + graphic.textWidth(' '); // Move x position to the right by the width of the censored string plus a space
+        drawBlurredText(graphic, censorString, x, y, textColor);
+        x -= graphic.textWidth(censorString) + graphic.textWidth(' ');
       }
 
       if (parts[i] !== "") {
-        // Draw the current part of the message
         graphic.text(parts[i] + '\u200F', x, y);
-        x -= graphic.textWidth(parts[i] + '\u200F'); // Move x position to the right by the width of the current part
+        x -= graphic.textWidth(parts[i] + '\u200F');
       }
     }
 
-    y += messageFontSize; // Move y position to the next line
+    y += messageFontSize;
   }
 
   graphic.pop();
@@ -381,30 +349,20 @@ function drawTimestamp(graphic, message, timestampOffset, timestampColor) {
   graphic.pop();
 }
 
-
-
 function calculateMessageHeight(message) {
-  // Calculate the number of lines in the message
   let lines = message.message.split('\n').length;
-  // Adjust the height based on the number of lines
   let messageHeight = lines * messageFontSize;
-  // Add extra space for username and time
-  // console.log("message - " + message.message + " - num of lines - " + lines + " - height - " + messageHeight);
   return messageHeight
     + timestampFontSize
     + distanceBetweenUsernameAndMessage
     + distanceBetweenTimeAndMessage;
 }
 
-
-
 function handleScroll(delta) {
-  // Block up scrolling before the first message
   if (messages[0].y + delta > startOfChatYPos) {
     return;
   }
-  // Block down scrolling before the last message
-  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height -10) {
+  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
     return;
   }
   for (let i = 0; i < messages.length; i++) {
@@ -414,13 +372,13 @@ function handleScroll(delta) {
 
 function mouseWheel(event) {
   handleScroll(-event.delta);
-  return false; // Prevent default scrolling
+  return false;
 }
 
 function touchMoved() {
   let delta = mouseY - pmouseY;
   handleScroll(delta);
-  return false; // Prevent default scrolling
+  return false;
 }
 
 
