@@ -6,6 +6,12 @@ let circleMask;
 let isAutoMode = false;
 
 
+//--screen management--
+let currentScreen = "home"
+// -------------------
+
+
+
 //------ ticker ------
 let currentTickerDate;
 let currentTickerTime;
@@ -25,20 +31,20 @@ let chatBoxBgColor;
 let redChatBoxColor;
 let yellowChatBoxColor;
 
-// let textWidth = 200;
+let maxNumOfCharsInLine = 30;
 let endOfChatYPos = 10;
 let startOfChatYPos = 10;
 const messageFontSize = 18;
 const timestampFontSize = 12;
-let distanceBetweenUsernameAndMessage = 25;
-let distanceBetweenTimeAndMessage = 10;
+let distanceBetweenUsernameAndMessage = 23;
+let distanceBetweenTimeAndMessage = 5;
 let distanceBetweenMessages = 50;
 let messageXOffset = 30;
 let timeXOffset = 10;
 let wholeMessagePadding = 50;
-let chatBoxYPadding = 10;
+let chatBoxYPadding = 15;
 let chatBoxXPadding = 20;
-const userIconSize = 30; // Diameter of the icon
+const userIconSize = 30; 
 const userIconXPadding = 8;
 const userIconYPadding = 2;
 // -----------------------
@@ -47,7 +53,7 @@ const userIconYPadding = 2;
 let chat;
 let currentTime;
 let currentDate;
-let maxNumOfCharsInLine = 30;
+
 //-----------------------
 
 //------ auto play ------
@@ -81,7 +87,7 @@ function setup() {
     chatReader = new WhatsAppReader();
     console.log('WhatsAppReader is defined');
 
-    chat = groups.moms;
+    chat = groups.youngPrivate;
     loadChat(chat);
 
   } else {
@@ -325,7 +331,7 @@ function drawUsername(graphic, message, userData) {
   // graphic.fill(userColor);
 
   // Apply blur effect to the username
-  let blurAmount = 10; // Adjust the blur amount as needed
+  let blurAmount = 10; 
   drawBlurredText(graphic, username, width - wholeMessagePadding, 0, blurAmount, userColor);
 
   graphic.pop();
@@ -388,26 +394,30 @@ function calculateMessageHeight(message) {
     + distanceBetweenTimeAndMessage;
 }
 
-// function mouseWheel(event) {
-//   chatCanvasYOffset -= event.delta;
-//   return false;
-// }
 
 
-function mouseWheel(event) {
-  //block up scrolling before the first message
-  if (messages[0].y - (event.delta) > startOfChatYPos) {
+function handleScroll(delta) {
+  // Block up scrolling before the first message
+  if (messages[0].y + delta > startOfChatYPos) {
     return;
   }
-  //block down scrolling before the last message
-  if (messages[messages.length - 1].y - (event.delta) < endOfChatYPos - 100) {
+  // Block down scrolling before the last message
+  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height -10) {
     return;
   }
   for (let i = 0; i < messages.length; i++) {
-
-
-    messages[i].y = messages[i].y - (event.delta);
+    messages[i].y = messages[i].y + delta;
   }
+}
+
+function mouseWheel(event) {
+  handleScroll(-event.delta);
+  return false; // Prevent default scrolling
+}
+
+function touchMoved() {
+  let delta = mouseY - pmouseY;
+  handleScroll(delta);
   return false; // Prevent default scrolling
 }
 
