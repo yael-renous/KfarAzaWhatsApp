@@ -1,43 +1,51 @@
-const groups = {
+let groups = {
   moms: {
     title: '✌🏻❤️ אמהות כפר עזה',
     hebrewName: 'אימהות',
-    englishName: 'moms'
+    englishName: 'moms',
+    renderedMessages: []
   },
   youngPrivate: {
     title: 'דור צעיר פרייבט',
     hebrewName: 'דור-צעיר-פרייבט',
-    englishName: 'youngPrivate'
+    englishName: 'youngPrivate',
+    renderedMessages: []
   },
   young: {
     title: '🐫 דור צעיר',
     hebrewName: 'דור-צעיר',
-    englishName: 'young'
+    englishName: 'young',
+    renderedMessages: []
   },
   bulgaria: {
     title: 'טיול לבולגריה',
     hebrewName: 'טיול-בולגריה',
-    englishName: 'bulgaria'
+    englishName: 'bulgaria',
+    renderedMessages: []
   },
   secondHand: {
     title: '🛋 יד שנייה כפר עזה',
     hebrewName: 'יד-שנייה',
-    englishName: 'secondHand'
+    englishName: 'secondHand',
+    renderedMessages: []
   },
   idf: {
     title: 'כוחות צהל',
     hebrewName: 'כוחות-צהל',
-    englishName: 'idf'
+    englishName: 'idf',
+    renderedMessages: []
   },
   tzach: {
     title: 'צח״י כפר עזה',
     hebrewName: 'צוות-צחי',
-    englishName: 'tzach'
+    englishName: 'tzach',
+    renderedMessages: []
   },
   tweeters: {
     title: '🐣מצייצות בכפר🐔',
     hebrewName: 'מצייצות',
-    englishName: 'tweeters'
+    englishName: 'tweeters',
+    renderedMessages: []
   }
 };
 
@@ -60,4 +68,16 @@ function getGroupName(name) {
   }
 }
 
-//module.exports = { translate, getGroupName, groups };
+// Add this function to save groups to local storage
+function saveGroupsToLocalStorage() {
+  localStorage.setItem('groups', JSON.stringify(groups));
+}
+
+// Add this function to load groups from local storage
+function loadGroupsFromLocalStorage() {
+  const storedGroups = localStorage.getItem('groups');
+  if (storedGroups) {
+      return JSON.parse(storedGroups);
+  }
+  return null;
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+    <script src="Scripts/JS/groupData.js"></script>
+    <script src="Scripts/JS/whatsappReader.js"></script>
+    <script>
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Set the group name from the URL parameter
+        window.groupName = getUrlParameter('groupName');
+    </script>
+    <script src="Scripts/JS/chatView.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    
+</body>
+</html>

@@ -4,14 +4,6 @@ let messages = [];
 let userIcons = {};
 const censorString = "צנזורמערכתי";
 
-//--screen management--
-let currentScreen = "home";
-// -------------------
-
-//------ ticker ------
-let currentTickerDate;
-let currentTickerTime;
-//-----------------------
 
 //------ chat assets ------
 let chatBgImage;
@@ -62,188 +54,64 @@ let currentTime;
 let currentDate;
 //-----------------------
 
-//------ auto play ------
-
-let isAutoMode = false;
-let currentMessageIndex = 0;
-const messageDisplayInterval = 2000; // Time interval in milliseconds (e.g., 2000ms = 2 seconds)
-let lastMessageTime = 0;
-let displayedMessages = []; // New array to store messages currently displayed on the screen
-
 //-----------------------
 
 function preload() {
-  chatBgImage = loadImage('Assets/Images/background-light.jpg');
-  topBarColor = "#016b61";
-  chatBoxBgColor = "#ffffff";
-  redChatBoxColor = "#bd0202";
-  yellowChatBoxColor = "#f5d905";
-  timestampColor = "grey";
-  textColor = color(0, 0, 0);
+  console.log("preloading");
+
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  console.log("setup");
+  createButtons();
+}
+
+function initChatRenderer(){
+  topBarColor = "#016b61";
+  chatBoxBgColor = "#ffffff";
+  redChatBoxColor = "#bd0202";
+  yellowChatBoxColor = "#f5d9z05";
+  timestampColor = "grey";
+  textColor = color(0, 0, 0);
+  chatReader = new WhatsAppReader();
 
   calculateFinalSizes();
   textFont('Arial');
-
-  if (typeof WhatsAppReader !== 'undefined') {
-    chatReader = new WhatsAppReader();
-    console.log('WhatsAppReader is defined');
-
-    chat = groups.youngPrivate;
-    loadChat(chat);
-  } else {
-    console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
-  }
-
-  window.addEventListener('keydown', handleControlShiftEnter);
-}
-
-function handleControlShiftEnter(event) {
-  if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
-    console.log('Control + Shift + Enter detected');
-    isAutoMode = true;
-    cleanView();
-    currentMessageIndex = 0;
-    lastMessageTime = millis(); // Initialize the timestamp
-  }
 }
 
 
 function calculateFinalSizes() {
-  topBarHeight = height * 0.1;
-  bottomBarHeight = height * 0.08;
-  startOfChatYPos = topBarHeight + height * 0.01;
-  endOfChatYPos = height - bottomBarHeight - height * 0.03;
+  topBarHeight = windowHeight * 0.1;
+  bottomBarHeight = windowHeight * 0.08;
+  startOfChatYPos = topBarHeight + windowHeight * 0.01;
+  endOfChatYPos = windowHeight - bottomBarHeight - windowHeight * 0.03;
 
-  distanceBetweenUsernameAndMessage = height * 0.025;
-  distanceBetweenTimeAndMessage = height * 0.005;
-  distanceBetweenMessages = height * 0.05;
-  messageXOffset = width * 0.03;
-  timeXOffset = width * 0.01;
-  wholeMessagePadding = width * 0.15;
-  chatBoxYPadding = height * 0.015;
-  chatBoxXPadding = width * 0.02;
+  distanceBetweenUsernameAndMessage = windowHeight * 0.025;
+  distanceBetweenTimeAndMessage = windowHeight * 0.005;
+  distanceBetweenMessages = windowHeight * 0.05;
+  messageXOffset = windowWidth * 0.03;
+  timeXOffset = windowWidth * 0.01;
+  wholeMessagePadding = windowWidth * 0.15;
+  chatBoxYPadding = windowHeight * 0.015;
+  chatBoxXPadding = windowWidth * 0.02;
 
-  messageFontSize = relativeMessageFontSize * height;
-  timestampFontSize = relativeTimestampFontSize * height;
-  userIconSize = relativeUserIconSize * height;
-  userIconXPadding = relativeUserIconXPadding * height;
-  userIconYPadding = relativeUserIconYPadding * height;
-  blurPixels = Math.round(relativeBlurAmount * height);
-  chatBoxRadius = relativeChatBoxRadius * width;
+  messageFontSize = relativeMessageFontSize * windowHeight;
+  timestampFontSize = relativeTimestampFontSize * windowHeight;
+  userIconSize = relativeUserIconSize * windowHeight;
+  userIconXPadding = relativeUserIconXPadding * windowHeight;
+  userIconYPadding = relativeUserIconYPadding * windowHeight;
+  blurPixels = Math.round(relativeBlurAmount * windowHeight);
+  chatBoxRadius = relativeChatBoxRadius * windowWidth;
 
   // Calculate max number of characters in a line based on message size and width of the screen
   let sampleText = "כ"; // Use a sample character to estimate width
   textSize(messageFontSize);
   let charWidth = textWidth(sampleText);
-  maxNumOfCharsInLine = Math.floor((width - wholeMessagePadding-messageXOffset) / charWidth);
+  maxNumOfCharsInLine = Math.floor((windowWidth - wholeMessagePadding-messageXOffset) / charWidth);
 }
 
-///----- Draw Functions -----
-
-function drawUI() {
-  drawTopBar();
-  drawTimeTicker();
-  drawBottomBar();
-}
-
-function drawTopBar() {
-  push();
-  noStroke();
-  drawingContext.shadowOffsetY = 1.3;
-  drawingContext.shadowBlur = 5;
-  drawingContext.shadowColor = 'grey';
-  fill(topBarColor);
-  rect(0, 0, width, topBarHeight);
-
-  fill("white");
-  textSize(height * 0.023);
-  textAlign(CENTER, TOP);
-  text(chat.title, width / 2, topBarHeight / 2);
-  pop();
-}
-
-function drawTimeTicker() {
-  push();
-  rectMode(CENTER);
-  fill("black");
-  rect(width / 2, topBarHeight / 4, width / 2, height * 0.02, 300, 300, 300, 300);
-  pop();
-}
-
-function drawBottomBar() {
-  push();
-  stroke("#dadada");
-  fill("white");
-  rect(0, height - bottomBarHeight, width, bottomBarHeight);
-  pop();
-}
-
-function displayAllMessages() {
-  for (let message of messages) {
-    image(message.graphic, 0, message.y);
-
-    let icon = userData[message.userName].img;
-    const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.height - height * 0.02;
-    image(icon, iconX, iconY, userIconSize, userIconSize);
-  }
-}
-
-function addNextMessage(){
-  if (currentMessageIndex < messages.length) {
-    let nextMessage = messages[currentMessageIndex];
-    displayedMessages.push(nextMessage);
-    currentMessageIndex++;
-
-    // Check if the new message is out of the screen
-    if (nextMessage.y + nextMessage.height > endOfChatYPos) {
-      // Scroll up by the height of the new message plus some padding
-      let scrollAmount = nextMessage.height+distanceBetweenMessages + 5;
-      handleScroll(-scrollAmount);
-    }
-  } else {
-    isAutoMode = false; // Stop auto mode when all messages are displayed
-  }
-}
-function displayAutoMessages() {
-  for (let message of displayedMessages) {
-      image(message.graphic, 0, message.y);
-
-      let icon = userData[message.userName].img;
-      const iconX = width - userIconXPadding - userIconSize;
-      const iconY = message.y + message.height - height * 0.02;
-      image(icon, iconX, iconY, userIconSize, userIconSize);
-  }
-}
-
-function draw() {
-  background(chatBgImage);
-
-  if (isAutoMode) {
-    let currentTime = millis();
-    if (currentTime - lastMessageTime >= messageDisplayInterval) {
-      addNextMessage();
-      lastMessageTime = currentTime; // Update the timestamp
-    }
-    displayAutoMessages();
-  } else {
-    displayAllMessages();
-  }
-
-  drawUI();
-}
-
-function cleanView(){
-  background(chatBgImage);
-  setMessageYPositions();
-  drawUI();
-}
-//---------------------------------------
 async function loadChat(chat) {
+  initChatRenderer();
   let success = await chatReader.loadChat(chat.englishName);
   if (success) {
     console.log(`Loaded chat: ${chat.englishName}`);
@@ -256,6 +124,7 @@ async function loadChat(chat) {
   } else {
     console.error(`Failed to load chat: ${chat.englishName}`);
   }
+  return messages;
 }
 
 function addMessagesNewLines() {
@@ -304,16 +173,14 @@ function setMessageYPositions() {
 }
 
 function renderMessageImages() {
+  console.log("rendering chat images");
   for (let message of messages) {
-    let messageGraphic = createGraphics(width, message.height + chatBoxYPadding * 2);
+    let messageGraphic = createGraphics(windowWidth, message.height + chatBoxYPadding * 2);
     messageGraphic.textFont('Arial');
 
     drawChatBox(messageGraphic, message, userData);
     drawUsername(messageGraphic, message, userData);
-
-
     drawMessageContent(messageGraphic, message, censorString, textColor);
-
     drawTimestamp(messageGraphic, message, timestampColor);
 
     message.graphic = messageGraphic;
@@ -324,7 +191,7 @@ function drawBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
   let alphaValue =1;
-  if(width<800)
+  if(windowWidth<800)
     alphaValue = 4;
   // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
@@ -378,7 +245,7 @@ function drawUsername(graphic, message, userData) {
   let username = ':שם משתמש';
   let userColor = color(userData[message.userName].color);
 
-  drawBlurredText(graphic, username, width - wholeMessagePadding, 0, userColor);
+  drawBlurredText(graphic, username, graphic.width - wholeMessagePadding, 0, userColor);
 
   graphic.pop();
 }
@@ -394,7 +261,7 @@ function drawMessageContent(graphic, message, censorString, textColor) {
 
   for (let line of lines) {
     let parts = line.split(censorString);
-    let x = width - wholeMessagePadding - messageXOffset;
+    let x = graphic.width - wholeMessagePadding - messageXOffset;
 
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) {
@@ -434,42 +301,3 @@ function calculateMessageHeight(message) {
     + distanceBetweenUsernameAndMessage
     + distanceBetweenTimeAndMessage;
 }
-
-// function handleAutoScroll(amount){
-//   // for (let m of displayedMessages) {
-//   //   // console.log("displayed message: ",message.y);
-//   //   m.y += amount;
-//   // }
-//   for (let message of messages) {
-//     // console.log("message: ",message.y);
-//     message.y += amount;
-//   }
-// }
-function handleScroll(delta) {
-  if (messages[0].y + delta > startOfChatYPos) {
-    return;
-  }
-  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
-    return;
-  }
-  for (let i = 0; i < messages.length; i++) {
-    messages[i].y = messages[i].y + delta;
-  }
-}
-
-function mouseWheel(event) {
-  if(isAutoMode)
-    return;
-  handleScroll(-event.delta);
-  return false;
-}
-
-function touchMoved() {
-  if(isAutoMode)
-    return;
-  let delta = mouseY - pmouseY;
-  handleScroll(delta);
-  return false;
-}
-
-
