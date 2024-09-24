@@ -83,6 +83,12 @@ function preload() {
 }
 
 function setup() {
+
+  const urlParams = new URLSearchParams(window.location.search);
+const groupName = urlParams.get('groupName');
+  console.log(groupName);
+  if (groupName == undefined)
+    return;
   createCanvas(windowWidth, windowHeight);
 
   calculateFinalSizes();
@@ -92,7 +98,7 @@ function setup() {
     chatReader = new WhatsAppReader();
     console.log('WhatsAppReader is defined');
 
-    chat = groups.youngPrivate;
+    chat = groups[groupName];
     loadChat(chat);
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
