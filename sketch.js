@@ -202,7 +202,7 @@ function addNextMessage(){
     // Check if the new message is out of the screen
     if (nextMessage.y + nextMessage.height > endOfChatYPos) {
       // Scroll up by the height of the new message plus some padding
-      let scrollAmount = nextMessage.height+distanceBetweenMessages + 10;
+      let scrollAmount = nextMessage.height+distanceBetweenMessages + 5;
       handleScroll(-scrollAmount);
     }
   } else {
