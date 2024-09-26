@@ -355,8 +355,7 @@ function displayAutoMessages() {
 }
 
 function draw() {
-  background(255); // Set a background color to avoid any gaps
-  image(chatBgImage, 0, 0, width, height, 0, 0, chatBgImage.width, chatBgImage.height, COVER);
+  background(chatBgImage);
   if (isLoading) {
     drawLoadingAnimation();
     return;
@@ -501,10 +500,10 @@ function setMessageYPositions() {
 }
 
 //--------------- render functions ------------------------
-function renderMessageImages() {
-
+async function renderMessageImages() {
   let currentDateString = messages[0].date;
-  for (let message of messages) {
+  for (let i = 0; i < messages.length; i++) {
+    let message = messages[i];
     let graphicHeight = message.height + chatBoxYPadding * 2;
     let addNewDate = message.date != currentDateString;
     currentDateString = message.date;
@@ -517,7 +516,6 @@ function renderMessageImages() {
     let messageGraphic = createGraphics(width, graphicHeight);
     messageGraphic.textFont('Arial');
 
-
     renderChatBox(messageGraphic, message, userData, dateOffset);
     renderUsername(messageGraphic, message, userData, dateOffset);
     renderMessageContent(messageGraphic, message, censorString, textColor, dateOffset);
@@ -526,7 +524,15 @@ function renderMessageImages() {
       renderNewDate(messageGraphic, message, userData);
     }
     message.graphic = messageGraphic;
+    // save(messageGraphic,`Assets/MessageGraphics/${chat.englishName}/message_${i}`, '.png');
+    // console.log("saved message " + i); // Save the graphic as a PNG image
   }
+
+  // for (let i = 0; i < messages.length; i++) {
+  //   save(messages[i].graphic,`Assets/MessageGraphics/${chat.englishName}/message_${i}`, '.png');
+  //   await new Promise(resolve => setTimeout(resolve, 2000));
+  //   console.log("saved message " + i); // Save the graphic as a PNG image
+  // }
 }
 
 function renderNewDate(graphic, message, userData) {
