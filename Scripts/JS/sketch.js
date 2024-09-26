@@ -57,6 +57,7 @@ let userIconXPadding;
 let userIconYPadding;
 let blurPixels;
 let chatBoxRadius;
+let newDateHeight;
 // -----------------------
 
 //------ chat data ------
@@ -162,6 +163,7 @@ function calculateFinalSizes() {
   chatBoxRadius = relativeChatBoxRadius * width;
   groupIconSize = 0.065 * height;
 
+  newDateHeight = distanceBetweenMessages + timestampFontSize ;
   // Calculate max number of characters in a line based on message size and width of the screen
   let sampleText = "כ"; // Use a sample character to estimate width
   textSize(messageFontSize);
@@ -234,7 +236,7 @@ function drawTimeTicker() {
   fill("white");
   textSize(height * 0.023);
   textAlign(CENTER, CENTER);
-  text(tickerTimeString + "\t\t"+currentDateString, width / 2, topBarHeight / 4 + height * 0.01);
+  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight / 4 + height * 0.01);
   pop();
 }
 
@@ -258,7 +260,7 @@ function displayAllMessages() {
   }
 }
 
-let currentDateString; 
+let currentDateString;
 function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
@@ -271,7 +273,7 @@ function addNextMessage() {
       let currentMessageDate = convertDateTimeToDate(nextMessage.date, nextMessage.time);
       let nextMessageDate = convertDateTimeToDate(messages[currentMessageIndex].date, messages[currentMessageIndex].time);
 
-      
+
       tickerStartTime = currentMessageDate;
       tickerEndTime = nextMessageDate;
       tickerStartRealTime = millis();
@@ -295,7 +297,7 @@ function addNextMessage() {
       // Check if the new message is out of the screen
       if (nextMessage.y + nextMessage.height > endOfChatYPos) {
         // Scroll up by the height of the new message plus some padding
-        let scrollAmount = nextMessage.height + distanceBetweenMessages + 5;
+        let scrollAmount = nextMessage.graphic.height  + distanceBetweenMessages + 5;
         handleScroll(-scrollAmount);
       }
     } else {
@@ -436,32 +438,63 @@ async function loadUserData(rawUserData) {
 }
 
 function setMessageYPositions() {
-  for (let i = 0; i < messages.length; i++) {
-    messages[i].height = calculateMessageHeight(messages[i]);
-    let previousMessageY = startOfChatYPos;
-    if (i > 0) {
-      previousMessageY = messages[i - 1].y + messages[i - 1].height;
-    }
+  messages[0].y = startOfChatYPos;
+  messages[0].height = calculateMessageHeight(messages[0]);
 
+  for (let i = 1; i < messages.length; i++) {
+    messages[i].height = calculateMessageHeight(messages[i]);
+    let previousMessageY = messages[i - 1].y + messages[i - 1].height;
+    if (i > 1) {
+      if (messages[i - 2].date != messages[i - 1].date) {
+        previousMessageY = previousMessageY + newDateHeight;
+      }
+    }
     messages[i].y = previousMessageY + distanceBetweenMessages;
   }
 }
 
+
 function renderMessageImages() {
+
+  let currentDateString = messages[0].date;
   for (let message of messages) {
-    let messageGraphic = createGraphics(width, message.height + chatBoxYPadding * 2);
+    let graphicHeight = message.height + chatBoxYPadding * 2;
+    let addNewDate = message.date != currentDateString;
+    currentDateString = message.date;
+    let dateOffset = 0;
+    if (addNewDate) {
+      graphicHeight = graphicHeight + newDateHeight;
+      dateOffset = newDateHeight;
+    }
+
+    let messageGraphic = createGraphics(width, graphicHeight);
     messageGraphic.textFont('Arial');
 
-    drawChatBox(messageGraphic, message, userData);
-    drawUsername(messageGraphic, message, userData);
 
-
-    drawMessageContent(messageGraphic, message, censorString, textColor);
-
-    drawTimestamp(messageGraphic, message, timestampColor);
-
+    drawChatBox(messageGraphic, message, userData, dateOffset);
+    drawUsername(messageGraphic, message, userData, dateOffset);
+    drawMessageContent(messageGraphic, message, censorString, textColor, dateOffset);
+    drawTimestamp(messageGraphic, message, timestampColor, dateOffset);
+    if (addNewDate) {
+      drawDate(messageGraphic, message, userData);
+    }
     message.graphic = messageGraphic;
   }
+}
+
+function drawDate(graphic, message, userData) {
+  graphic.push();
+  graphic.rectMode(CENTER);
+  graphic.stroke("light-grey");
+  graphic.strokeWeight(3);
+  graphic.fill(chatBoxBgColor);
+  graphic.textSize(timestampFontSize);
+  let dateWidth = graphic.textWidth(message.date);
+  graphic.rect(graphic.width / 2, chatBoxYPadding, dateWidth + chatBoxXPadding * 2, timestampFontSize + chatBoxYPadding, 300);
+  graphic.textAlign(CENTER, TOP);
+  graphic.fill(timestampColor);
+  graphic.text(message.date, graphic.width / 2, chatBoxYPadding / 2);
+  graphic.pop();
 }
 
 function drawBlurredText(graphic, text, x, y, color) {
@@ -482,7 +515,7 @@ function drawBlurredText(graphic, text, x, y, color) {
   graphic.pop();
 }
 
-function drawChatBox(graphic, message, userData) {
+function drawChatBox(graphic, message, userData, dateOffset) {
   graphic.push();
   graphic.noStroke();
   graphic.rectMode(CORNERS);
@@ -508,26 +541,26 @@ function drawChatBox(graphic, message, userData) {
 
   let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopX = Math.min(Math.min(messageEndX, endTimestampX), usernameEndX);
-  let leftTopY = 0;
+  let leftTopY = 0 + dateOffset;
   let rightBottomX = width - wholeMessagePadding + chatBoxXPadding;
-  let rightBottomY = message.height + chatBoxYPadding;
+  let rightBottomY = message.height + chatBoxYPadding + dateOffset;
   graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, chatBoxRadius);
   graphic.pop();
 }
 
-function drawUsername(graphic, message, userData) {
+function drawUsername(graphic, message, userData, dateOffset) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
   let username = ':שם משתמש';
   let userColor = color(userData[message.userName].color);
 
-  drawBlurredText(graphic, username, width - wholeMessagePadding, 0, userColor);
+  drawBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
 
   graphic.pop();
 }
 
-function drawMessageContent(graphic, message, censorString, textColor) {
+function drawMessageContent(graphic, message, censorString, textColor, dateOffset) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
@@ -538,7 +571,7 @@ function drawMessageContent(graphic, message, censorString, textColor) {
   graphic.fill(color);
 
   let lines = message.message.split('\n');
-  let y = distanceBetweenUsernameAndMessage;
+  let y = distanceBetweenUsernameAndMessage + dateOffset;
 
   for (let line of lines) {
     let parts = line.split(censorString);
@@ -562,7 +595,7 @@ function drawMessageContent(graphic, message, censorString, textColor) {
   graphic.pop();
 }
 
-function drawTimestamp(graphic, message, timestampColor) {
+function drawTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
@@ -574,7 +607,7 @@ function drawTimestamp(graphic, message, timestampColor) {
     color = 'light-grey';
   }
   graphic.fill(color);
-  graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage);
+  graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage + dateOffset);
   graphic.pop();
 }
 
