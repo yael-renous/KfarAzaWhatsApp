@@ -105,8 +105,16 @@ function setup() {
   console.log(groupName);
   if (groupName == undefined)
     return;
-  createCanvas(windowWidth, windowHeight);
 
+  if (windowWidth > windowHeight) {
+    // Landscape mode: fill height and make it HD proportions
+    createCanvas((windowHeight * 9 )/ 16, windowHeight);
+    console.log("Landscape mode");
+  } else {
+    // Portrait mode: fill entire screen
+    createCanvas(windowWidth, windowHeight);
+    console.log("Portrait mode");
+  }
   calculateFinalSizes();
   textFont('Arial');
 
@@ -228,7 +236,7 @@ function calculateTickerTimeString() {
 }
 
 function drawTimeTicker() {
- // if (!isAutoMode || displayedMessages.length === 0) return;
+ if (!isAutoMode || displayedMessages.length === 0) return;
 
   tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
@@ -395,7 +403,37 @@ function resetView() {
   tickerStartRealTime = null;
   currentDateString = "";
 }
-//---------------------------------------
+
+
+//--------------- scroll functions ------------------------
+function handleScroll(delta) {
+  if (messages[0].y + delta > startOfChatYPos) {
+    return;
+  }
+  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
+    return;
+  }
+  for (let i = 0; i < messages.length; i++) {
+    messages[i].y = messages[i].y + delta;
+  }
+}
+
+function mouseWheel(event) {
+  if (isAutoMode)
+    return;
+  handleScroll(-event.delta);
+  return false;
+}
+
+function touchMoved() {
+  if (isAutoMode)
+    return;
+  let delta = mouseY - pmouseY;
+  handleScroll(delta);
+  return false;
+}
+
+//----------------pre loading functions-------------------
 async function loadChat(chat) {
   let success = await chatReader.loadChat(chat.englishName);
   if (success) {
@@ -460,7 +498,7 @@ function setMessageYPositions() {
   }
 }
 
-
+//--------------- render functions ------------------------
 function renderMessageImages() {
 
   let currentDateString = messages[0].date;
@@ -478,51 +516,34 @@ function renderMessageImages() {
     messageGraphic.textFont('Arial');
 
 
-    drawChatBox(messageGraphic, message, userData, dateOffset);
-    drawUsername(messageGraphic, message, userData, dateOffset);
-    drawMessageContent(messageGraphic, message, censorString, textColor, dateOffset);
-    drawTimestamp(messageGraphic, message, timestampColor, dateOffset);
+    renderChatBox(messageGraphic, message, userData, dateOffset);
+    renderUsername(messageGraphic, message, userData, dateOffset);
+    renderMessageContent(messageGraphic, message, censorString, textColor, dateOffset);
+    renderTimestamp(messageGraphic, message, timestampColor, dateOffset);
     if (addNewDate) {
-      drawDate(messageGraphic, message, userData);
+      renderNewDate(messageGraphic, message, userData);
     }
     message.graphic = messageGraphic;
   }
 }
 
-function drawDate(graphic, message, userData) {
+function renderNewDate(graphic, message, userData) {
   graphic.push();
   graphic.rectMode(CENTER);
-  graphic.stroke("light-grey");
-  graphic.strokeWeight(3);
+  graphic.stroke("grey");
+  graphic.strokeWeight(0.4);
   graphic.fill(chatBoxBgColor);
   graphic.textSize(timestampFontSize);
   let dateWidth = graphic.textWidth(message.date);
   graphic.rect(graphic.width / 2, chatBoxYPadding, dateWidth + chatBoxXPadding * 2, timestampFontSize + chatBoxYPadding, 300);
   graphic.textAlign(CENTER, TOP);
   graphic.fill(timestampColor);
+  graphic.noStroke();
   graphic.text(message.date, graphic.width / 2, chatBoxYPadding / 2);
   graphic.pop();
 }
 
-function drawBlurredText(graphic, text, x, y, color) {
-  graphic.push();
-  let blurColor = color;
-  let alphaValue = 1;
-  if (width < 800)
-    alphaValue = 4;
-  // console.log(alphaValue);
-  blurColor.setAlpha(alphaValue);
-  graphic.fill(blurColor);
-  for (let i = -0; i < blurPixels; i++) {
-    for (let j = -0; j < blurPixels; j++) {
-      graphic.text(text, x - i, y + j);
-    }
-  }
-  color.setAlpha(255);
-  graphic.pop();
-}
-
-function drawChatBox(graphic, message, userData, dateOffset) {
+function renderChatBox(graphic, message, userData, dateOffset) {
   graphic.push();
   graphic.noStroke();
   graphic.rectMode(CORNERS);
@@ -555,19 +576,19 @@ function drawChatBox(graphic, message, userData, dateOffset) {
   graphic.pop();
 }
 
-function drawUsername(graphic, message, userData, dateOffset) {
+function renderUsername(graphic, message, userData, dateOffset) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
   let username = ':שם משתמש';
   let userColor = color(userData[message.userName].color);
 
-  drawBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
+  renderBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
 
   graphic.pop();
 }
 
-function drawMessageContent(graphic, message, censorString, textColor, dateOffset) {
+function renderMessageContent(graphic, message, censorString, textColor, dateOffset) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
@@ -586,7 +607,7 @@ function drawMessageContent(graphic, message, censorString, textColor, dateOffse
 
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) {
-        drawBlurredText(graphic, censorString, x, y, textColor);
+        renderBlurredText(graphic, censorString, x, y, textColor);
         x -= graphic.textWidth(censorString) + graphic.textWidth(' ');
       }
 
@@ -602,7 +623,7 @@ function drawMessageContent(graphic, message, censorString, textColor, dateOffse
   graphic.pop();
 }
 
-function drawTimestamp(graphic, message, timestampColor, dateOffset) {
+function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
@@ -618,6 +639,24 @@ function drawTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.pop();
 }
 
+function renderBlurredText(graphic, text, x, y, color) {
+  graphic.push();
+  let blurColor = color;
+  let alphaValue = 1;
+  if (width < 800)
+    alphaValue = 4;
+  // console.log(alphaValue);
+  blurColor.setAlpha(alphaValue);
+  graphic.fill(blurColor);
+  for (let i = -0; i < blurPixels; i++) {
+    for (let j = -0; j < blurPixels; j++) {
+      graphic.text(text, x - i, y + j);
+    }
+  }
+  color.setAlpha(255);
+  graphic.pop();
+}
+
 function calculateMessageHeight(message) {
   let lines = message.message.split('\n').length;
   let messageHeight = lines * messageFontSize;
@@ -628,31 +667,5 @@ function calculateMessageHeight(message) {
 }
 
 
-function handleScroll(delta) {
-  if (messages[0].y + delta > startOfChatYPos) {
-    return;
-  }
-  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
-    return;
-  }
-  for (let i = 0; i < messages.length; i++) {
-    messages[i].y = messages[i].y + delta;
-  }
-}
-
-function mouseWheel(event) {
-  if (isAutoMode)
-    return;
-  handleScroll(-event.delta);
-  return false;
-}
-
-function touchMoved() {
-  if (isAutoMode)
-    return;
-  let delta = mouseY - pmouseY;
-  handleScroll(delta);
-  return false;
-}
 
 
