@@ -86,9 +86,6 @@ let minTimeBetweenMessages = 2000;
 //-----------------------
 
 
-
-
-
 function preload() {
   chatBgImage = loadImage('Assets/Images/background-light.jpg');
   topBarColor = "#016b61";
@@ -100,7 +97,6 @@ function preload() {
 }
 
 function setup() {
-
   const urlParams = new URLSearchParams(window.location.search);
   const groupName = urlParams.get('groupName');
   groupIcon = loadImage(`Assets/GroupIcons/${groupName}.png`);
@@ -238,13 +234,10 @@ function drawTimeTicker() {
   fill("white");
   textSize(height * 0.023);
   textAlign(CENTER, CENTER);
-  text(tickerTimeString + "\t\t07.10.2023", width / 2, topBarHeight / 4 + height * 0.01);
+  text(tickerTimeString + "\t\t"+currentDateString, width / 2, topBarHeight / 4 + height * 0.01);
   pop();
 }
 
-function padZero(num) {
-  return num.toString().padStart(2, '0');
-}
 
 function drawBottomBar() {
   push();
@@ -265,33 +258,27 @@ function displayAllMessages() {
   }
 }
 
-
+let currentDateString; 
 function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
     displayedMessages.push(nextMessage);
     currentMessageIndex++;
 
+    currentDateString = nextMessage.date;
     // Set up ticker times
     if (currentMessageIndex < messages.length) {
       let currentMessageDate = convertDateTimeToDate(nextMessage.date, nextMessage.time);
       let nextMessageDate = convertDateTimeToDate(messages[currentMessageIndex].date, messages[currentMessageIndex].time);
 
+      
       tickerStartTime = currentMessageDate;
       tickerEndTime = nextMessageDate;
       tickerStartRealTime = millis();
 
-      // Calculate messageDisplayInterval
-      messageDisplayInterval = (tickerEndTime - tickerStartTime) / autoPlaySpeed;
-
-
       lastMessageTime = millis();
 
       let timeDiff = nextMessageDate.getTime() - currentMessageDate.getTime();
-
-
-      // Calculate autoPlaySpeed using a logarithmic scale
-
       autoPlaySpeed = map(timeDiff, 0, 1000000, minSpeed, maxSpeed)
 
       if (timeDiff < 1) {
