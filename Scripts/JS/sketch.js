@@ -58,6 +58,7 @@ let userIconYPadding;
 let blurPixels;
 let chatBoxRadius;
 let newDateHeight;
+let tickerHeight;
 // -----------------------
 
 //------ chat data ------
@@ -69,7 +70,6 @@ let currentTickerTime;
 let tickerStartTime;
 let tickerEndTime;
 let tickerStartRealTime;
-//-----------------------
 //-----------------------
 
 //------ auto play ------
@@ -140,9 +140,10 @@ function handleControlShiftEnter(event) {
 
 
 function calculateFinalSizes() {
-  topBarHeight = height * 0.1;
+  topBarHeight = height * 0.08;
+  tickerHeight = height * 0.05;
   bottomBarHeight = height * 0.08;
-  startOfChatYPos = topBarHeight + height * 0.01;
+  startOfChatYPos = topBarHeight + tickerHeight + height * 0.03;
   endOfChatYPos = height - bottomBarHeight - height * 0.03;
 
   distanceBetweenUsernameAndMessage = height * 0.025;
@@ -161,7 +162,7 @@ function calculateFinalSizes() {
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
-  groupIconSize = 0.065 * height;
+  groupIconSize = 0.06 * height;
 
   newDateHeight = distanceBetweenMessages + timestampFontSize ;
   // Calculate max number of characters in a line based on message size and width of the screen
@@ -187,16 +188,18 @@ function drawTopBar() {
   drawingContext.shadowColor = 'grey';
   fill(topBarColor);
   rect(0, 0, width, topBarHeight);
+  let padding = width * 0.02;
 
+  let groupIconX = width - groupIconSize - padding;
+  let goupTextX = groupIconX - groupIconSize/2 - padding;
   fill("white");
   textSize(height * 0.024);
-  textAlign(CENTER, TOP);
-  text(chat.title, width / 2, topBarHeight / 2 + height * 0.015);
+  textAlign(RIGHT, CENTER);
+  text(chat.title, goupTextX, topBarHeight / 2 );
 
-  let padding = width * 0.02;
   //group icon
   imageMode(CENTER);
-  image(groupIcon, width - groupIconSize - padding, topBarHeight / 2, groupIconSize, groupIconSize);
+  image(groupIcon, groupIconX, topBarHeight / 2, groupIconSize, groupIconSize);
   //video icon
   //call icon
   //more options icon
@@ -225,18 +228,19 @@ function calculateTickerTimeString() {
 }
 
 function drawTimeTicker() {
-  if (!isAutoMode || displayedMessages.length === 0) return;
+ // if (!isAutoMode || displayedMessages.length === 0) return;
 
   tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
   push();
   rectMode(CENTER);
+  let padding = height * 0.01;
   fill("black");
-  rect(width / 2, topBarHeight / 4 + height * 0.01, width / 2, height * 0.05, 300);
+  rect(width / 2, topBarHeight + tickerHeight / 2 +padding, width / 2+padding, tickerHeight, 300);
   fill("white");
-  textSize(height * 0.023);
+  textSize(height * 0.022);
   textAlign(CENTER, CENTER);
-  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight / 4 + height * 0.01);
+  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight + tickerHeight / 2 +padding);
   pop();
 }
 
@@ -281,7 +285,7 @@ function addNextMessage() {
       lastMessageTime = millis();
 
       let timeDiff = nextMessageDate.getTime() - currentMessageDate.getTime();
-      autoPlaySpeed = map(timeDiff, 0, 1000000, minSpeed, maxSpeed)
+      autoPlaySpeed = map(timeDiff, 0, 3600000, minSpeed, maxSpeed)
 
       if (timeDiff < 1) {
         timeDiff = minTimeBetweenMessages;
@@ -301,7 +305,9 @@ function addNextMessage() {
         handleScroll(-scrollAmount);
       }
     } else {
-      isAutoMode = false; // Stop auto mode when all messages are displayed
+      setTimeout(() => {
+        resetView(); 
+      }, 3000);
     }
   }
 }
@@ -387,6 +393,7 @@ function resetView() {
   tickerStartTime = null;
   tickerEndTime = null;
   tickerStartRealTime = null;
+  currentDateString = "";
 }
 //---------------------------------------
 async function loadChat(chat) {
