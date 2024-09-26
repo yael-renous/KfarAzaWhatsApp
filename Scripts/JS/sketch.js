@@ -262,10 +262,12 @@ function drawBottomBar() {
 }
 
 function displayAllMessages() {
-  for (let message of messages) {
+  for (let i=0; i<lastRenderedMessageIndex; i++) {
+    let message = messages[i];
     image(message.graphic, 0, message.y);
 
     let icon = userData[message.userName].img;
+    icon.resize(userIconSize, userIconSize);
     const iconX = width - userIconXPadding - userIconSize;
     const iconY = message.y + message.height - height * 0.02;
     image(icon, iconX, iconY, userIconSize, userIconSize);
@@ -414,6 +416,9 @@ function handleScroll(delta) {
   if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
     return;
   }
+  if(messages[lastRenderedMessageIndex].y + delta < endOfChatYPos - messages[lastRenderedMessageIndex].height - 10) {
+    renderMessageImages(lastRenderedMessageIndex,Math.min(messages.length,lastRenderedMessageIndex+renderBulks));
+  }
   for (let i = 0; i < messages.length; i++) {
     messages[i].y = messages[i].y + delta;
   }
@@ -444,7 +449,7 @@ async function loadChat(chat) {
     await loadUserData(rawUserData);
     addMessagesNewLines();
     setMessageYPositions();
-    renderMessageImages();
+    renderMessageImages(0,Math.min(messages.length,renderBulks));
   } else {
     console.error(`Failed to load chat: ${chat.englishName}`);
   }
@@ -499,10 +504,14 @@ function setMessageYPositions() {
   }
 }
 
+
+let lastRenderedMessageIndex = 0;
+let renderBulks=30;
 //--------------- render functions ------------------------
-async function renderMessageImages() {
+async function renderMessageImages(fromIndex, toIndex) {
+  console.log("rendering messages " + fromIndex + " to " + toIndex);
   let currentDateString = messages[0].date;
-  for (let i = 0; i < messages.length; i++) {
+  for (let i = fromIndex; i < toIndex; i++) {
     let message = messages[i];
     let graphicHeight = message.height + chatBoxYPadding * 2;
     let addNewDate = message.date != currentDateString;
@@ -533,6 +542,7 @@ async function renderMessageImages() {
   //   await new Promise(resolve => setTimeout(resolve, 2000));
   //   console.log("saved message " + i); // Save the graphic as a PNG image
   // }
+  lastRenderedMessageIndex = toIndex;
 }
 
 function renderNewDate(graphic, message, userData) {
@@ -591,8 +601,9 @@ function renderUsername(graphic, message, userData, dateOffset) {
   let username = ':שם משתמש';
   let userColor = color(userData[message.userName].color);
 
+  graphic.fill(userColor);
   renderBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
-
+  // graphic.text(username, width - wholeMessagePadding, 0 + dateOffset);
   graphic.pop();
 }
 
@@ -616,6 +627,7 @@ function renderMessageContent(graphic, message, censorString, textColor, dateOff
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) {
         renderBlurredText(graphic, censorString, x, y, textColor);
+        // graphic.text(censorString, x, y);
         x -= graphic.textWidth(censorString) + graphic.textWidth(' ');
       }
 
