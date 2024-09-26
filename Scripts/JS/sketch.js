@@ -6,11 +6,18 @@ const censorString = "צנזורמערכתי";
 
 //--screen management--
 let isLoading = true;
+
+//--loading animation--
+let loadingCircleSize=80
+let circleSizeChange=1;
 // -------------------
 
 //------ ticker ------
 let currentTickerDate;
 let currentTickerTime;
+let tickerStartTime;
+let tickerCurrentTime;
+let lastTickTime;
 //-----------------------
 
 //------ chat assets ------
@@ -58,26 +65,36 @@ let chatBoxRadius;
 
 //------ chat data ------
 let chat;
-let currentTime;
-let currentDate;
+
+//------ ticker ------
+let tickerTimeString;
+let currentHours;
+let currentMinutes;
+let currentSeconds;
+let lastFrameTime;
 //-----------------------
 
 //------ auto play ------
-
 let isAutoMode = false;
 let currentMessageIndex = 0;
-const messageDisplayInterval = 2000; // Time interval in milliseconds (e.g., 2000ms = 2 seconds)
 let lastMessageTime = 0;
-let displayedMessages = []; // New array to store messages currently displayed on the screen
+let displayedMessages = [];
+let messageDisplayInterval = 0;
 
+let autoPlaySpeed = 6;
+let maxTimeBetweenMessages = 10000;
+let minTimeBetweenMessages = 2000;
 //-----------------------
+
+
+
 
 function preload() {
   chatBgImage = loadImage('Assets/Images/background-light.jpg');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
-  redChatBoxColor = "#bd0202";
-  yellowChatBoxColor = "#f5d905";
+  redChatBoxColor = "#d23c19";
+  yellowChatBoxColor = "#fce887";
   timestampColor = "grey";
   textColor = color(0, 0, 0);
 }
@@ -99,8 +116,6 @@ function setup() {
     console.log('WhatsAppReader is defined');
 
     chat = groups[groupName];
-    loadChat(chat);
-    isLoading = false;
   } else {
     console.error('WhatsAppReader is not defined. Make sure whatsappReader.js is loaded correctly.');
   }
@@ -108,13 +123,19 @@ function setup() {
   window.addEventListener('keydown', handleControlShiftEnter);
 }
 
+async function initSketch() {
+  isLoading = true;
+  await loadChat(chat);
+  isLoading = false;
+}
+
 function handleControlShiftEnter(event) {
   if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
     console.log('Control + Shift + Enter detected');
     isAutoMode = true;
-    cleanView();
     currentMessageIndex = 0;
     lastMessageTime = millis(); // Initialize the timestamp
+    resetView();
   }
 }
 
@@ -173,12 +194,60 @@ function drawTopBar() {
   pop();
 }
 
+
+
 function drawTimeTicker() {
+  if (!isAutoMode || displayedMessages.length === 0) return;
+
+  let currentTime = millis();
+
+  if (!tickerStartTime) {
+    let firstMessage = displayedMessages[0];
+    let timeParts = firstMessage.time.split(':');
+    currentHours = parseInt(timeParts[0]);
+    currentMinutes = parseInt(timeParts[1]);
+    currentSeconds = timeParts.length > 2 ? parseInt(timeParts[2]) : 0;
+    tickerStartTime = currentTime;
+    lastFrameTime = currentTime;
+  } else {
+    // Calculate elapsed time since last frame
+    let elapsedSeconds = (currentTime - lastFrameTime) / 1000 * autoPlaySpeed;
+    lastFrameTime = currentTime;
+
+    // Update time
+    currentSeconds += elapsedSeconds;
+    if (currentSeconds >= 60) {
+      currentMinutes += Math.floor(currentSeconds / 60);
+      currentSeconds %= 60;
+    }
+    if (currentMinutes >= 60) {
+      currentHours += Math.floor(currentMinutes / 60);
+      currentMinutes %= 60;
+    }
+    if (currentHours >= 24) {
+      currentHours %= 24;
+    }
+  }
+
+  tickerTimeString =
+    padZero(Math.floor(currentHours)) + ":" +
+    padZero(Math.floor(currentMinutes)) + ":" +
+    padZero(Math.floor(currentSeconds));
+
+  // Draw the ticker
   push();
   rectMode(CENTER);
   fill("black");
-  rect(width / 2, topBarHeight / 4, width / 2, height * 0.02, 300, 300, 300, 300);
+  rect(width / 2, topBarHeight / 4, width / 2, height * 0.05, 300);
+  fill("white");
+  textSize(height * 0.023);
+  textAlign(CENTER, CENTER);
+  text(tickerTimeString, width / 2, topBarHeight / 4);
   pop();
+}
+
+function padZero(num) {
+  return num.toString().padStart(2, '0');
 }
 
 function drawBottomBar() {
@@ -206,6 +275,16 @@ function addNextMessage() {
     displayedMessages.push(nextMessage);
     currentMessageIndex++;
 
+    // Calculate the time until the next message should be displayed
+    let currentMessageDate = convertDateTimeToDate(nextMessage.date, nextMessage.time);
+    let nextMessageDate = convertDateTimeToDate(messages[currentMessageIndex].date, messages[currentMessageIndex].time);
+
+    lastMessageTime = millis();
+
+    let timeDiff = nextMessageDate.getTime() - currentMessageDate.getTime();
+    messageDisplayInterval = Math.max(timeDiff, 2000) / autoPlaySpeed; // At least two seconds between messages
+    console.log("next message in " + messageDisplayInterval / 1000 + "seconds");
+
     // Check if the new message is out of the screen
     if (nextMessage.y + nextMessage.height > endOfChatYPos) {
       // Scroll up by the height of the new message plus some padding
@@ -216,6 +295,17 @@ function addNextMessage() {
     isAutoMode = false; // Stop auto mode when all messages are displayed
   }
 }
+
+function convertDateTimeToDate(dateString, timeString) {
+  let [day, month, year] = dateString.split('.').map(Number);
+  let [hours, minutes, seconds = 0] = timeString.split(':').map(Number);
+
+  // Note: JavaScript months are 0-indexed, so we subtract 1 from the month
+  return new Date(year, month - 1, day, hours, minutes, seconds);
+}
+
+
+
 function displayAutoMessages() {
   for (let message of displayedMessages) {
     image(message.graphic, 0, message.y);
@@ -229,12 +319,15 @@ function displayAutoMessages() {
 
 function draw() {
   background(chatBgImage);
+  if (isLoading) {
+    drawLoadingAnimation();
+    return;
+  }
 
   if (isAutoMode) {
     let currentTime = millis();
     if (currentTime - lastMessageTime >= messageDisplayInterval) {
       addNextMessage();
-      lastMessageTime = currentTime; // Update the timestamp
     }
     displayAutoMessages();
   } else {
@@ -244,10 +337,33 @@ function draw() {
   drawUI();
 }
 
-function cleanView() {
+
+function drawLoadingAnimation() {
+  let pulseColor = color(topBarColor);
+  pulseColor.setAlpha(60);
+  fill(pulseColor);
+  noStroke();
+  circle(width / 2, height / 2, loadingCircleSize);
+  
+  if(loadingCircleSize>150){
+    circleSizeChange=-circleSizeChange;
+  }
+  else if(loadingCircleSize<80){
+    circleSizeChange=-circleSizeChange;
+  }
+  loadingCircleSize = (loadingCircleSize + circleSizeChange) ; // Oscillate between 80 and 200
+
+}
+
+function resetView() {
   background(chatBgImage);
+  currentMessageIndex = 0;
+  displayedMessages = [];
   setMessageYPositions();
   drawUI();
+  tickerStartTime = null;
+  tickerCurrentTime = null;
+  lastTickTime = null;
 }
 //---------------------------------------
 async function loadChat(chat) {
@@ -394,7 +510,11 @@ function drawMessageContent(graphic, message, censorString, textColor) {
   graphic.push();
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
-  graphic.fill(textColor);
+  let color = textColor;
+  if (userData[message.userName].status == 'M') {
+    color = 'light-grey';
+  }
+  graphic.fill(color);
 
   let lines = message.message.split('\n');
   let y = distanceBetweenUsernameAndMessage;
@@ -428,7 +548,11 @@ function drawTimestamp(graphic, message, timestampColor) {
   let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
   graphic.textAlign(LEFT, TOP);
   graphic.textSize(timestampFontSize);
-  graphic.fill(timestampColor);
+  let color = timestampColor;
+  if (userData[message.userName].status == 'M') {
+    color = 'light-grey';
+  }
+  graphic.fill(color);
   graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage);
   graphic.pop();
 }
@@ -442,16 +566,7 @@ function calculateMessageHeight(message) {
     + distanceBetweenTimeAndMessage;
 }
 
-// function handleAutoScroll(amount){
-//   // for (let m of displayedMessages) {
-//   //   // console.log("displayed message: ",message.y);
-//   //   m.y += amount;
-//   // }
-//   for (let message of messages) {
-//     // console.log("message: ",message.y);
-//     message.y += amount;
-//   }
-// }
+
 function handleScroll(delta) {
   if (messages[0].y + delta > startOfChatYPos) {
     return;
