@@ -17,14 +17,20 @@
 
 <body>
     <script>
-        async function load() {
-            console.log("initSketch");
+        document.addEventListener('DOMContentLoaded', function() {
+            async function tryInitSketch() {
+                try {
+                    console.log("Attempting initSketch");
+                    await initSketch();
+                    console.log("initSketch done");
+                } catch (error) {
+                    console.error("initSketch failed:", error);
+                    console.log("Retrying in 1 second...");
+                    setTimeout(tryInitSketch, 1000);
+                }
+            }
 
-            await initSketch();
-
-            console.log("initSketch done");
-
-        }
-        setTimeout(load, 3000);
+            tryInitSketch();
+        });
     </script>
 </body>

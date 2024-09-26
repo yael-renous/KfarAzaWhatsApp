@@ -2,23 +2,18 @@ let chatReader;
 let userData = {};
 let messages = [];
 let userIcons = {};
+let groupIcon;
 const censorString = "צנזורמערכתי";
 
 //--screen management--
 let isLoading = true;
 
 //--loading animation--
-let loadingCircleSize=80
-let circleSizeChange=1;
+let loadingCircleSize = 80
+let circleSizeChange = 1;
 // -------------------
 
-//------ ticker ------
-let currentTickerDate;
-let currentTickerTime;
-let tickerStartTime;
-let tickerCurrentTime;
-let lastTickTime;
-//-----------------------
+
 
 //------ chat assets ------
 let chatBgImage;
@@ -56,6 +51,7 @@ let chatBoxYPadding;
 let chatBoxXPadding;
 let messageFontSize;
 let timestampFontSize;
+let groupIconSize;
 let userIconSize;
 let userIconXPadding;
 let userIconYPadding;
@@ -68,10 +64,11 @@ let chat;
 
 //------ ticker ------
 let tickerTimeString;
-let currentHours;
-let currentMinutes;
-let currentSeconds;
-let lastFrameTime;
+let currentTickerTime;
+let tickerStartTime;
+let tickerEndTime;
+let tickerStartRealTime;
+//-----------------------
 //-----------------------
 
 //------ auto play ------
@@ -79,12 +76,15 @@ let isAutoMode = false;
 let currentMessageIndex = 0;
 let lastMessageTime = 0;
 let displayedMessages = [];
-let messageDisplayInterval = 0;
 
+let messageDisplayInterval = 0;
+const minSpeed = 0.05;
+const maxSpeed = 200;
 let autoPlaySpeed = 6;
 let maxTimeBetweenMessages = 10000;
 let minTimeBetweenMessages = 2000;
 //-----------------------
+
 
 
 
@@ -103,6 +103,8 @@ function setup() {
 
   const urlParams = new URLSearchParams(window.location.search);
   const groupName = urlParams.get('groupName');
+  groupIcon = loadImage(`Assets/GroupIcons/${groupName}.png`);
+
   console.log(groupName);
   if (groupName == undefined)
     return;
@@ -162,6 +164,7 @@ function calculateFinalSizes() {
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
+  groupIconSize = 0.065 * height;
 
   // Calculate max number of characters in a line based on message size and width of the screen
   let sampleText = "כ"; // Use a sample character to estimate width
@@ -188,61 +191,54 @@ function drawTopBar() {
   rect(0, 0, width, topBarHeight);
 
   fill("white");
-  textSize(height * 0.023);
+  textSize(height * 0.024);
   textAlign(CENTER, TOP);
-  text(chat.title, width / 2, topBarHeight / 2);
+  text(chat.title, width / 2, topBarHeight / 2 + height * 0.015);
+
+  let padding = width * 0.02;
+  //group icon
+  imageMode(CENTER);
+  image(groupIcon, width - groupIconSize - padding, topBarHeight / 2, groupIconSize, groupIconSize);
+  //video icon
+  //call icon
+  //more options icon
   pop();
 }
 
+function calculateTickerTimeString() {
+  if (!tickerStartTime || !tickerEndTime) return "";
 
+  let currentRealTime = millis();
+  let elapsedRealTime = currentRealTime - tickerStartRealTime;
+  let elapsedSimulatedTime = elapsedRealTime * autoPlaySpeed;
+
+  let currentTickerTime = new Date(tickerStartTime.getTime() + elapsedSimulatedTime);
+
+  // Ensure we don't exceed the end time
+  if (currentTickerTime > tickerEndTime) {
+    currentTickerTime = new Date(tickerEndTime);
+  }
+
+  let hours = currentTickerTime.getHours().toString().padStart(2, '0');
+  let minutes = currentTickerTime.getMinutes().toString().padStart(2, '0');
+  let seconds = currentTickerTime.getSeconds().toString().padStart(2, '0');
+
+  return `${hours}:${minutes}:${seconds}`;
+}
 
 function drawTimeTicker() {
   if (!isAutoMode || displayedMessages.length === 0) return;
 
-  let currentTime = millis();
-
-  if (!tickerStartTime) {
-    let firstMessage = displayedMessages[0];
-    let timeParts = firstMessage.time.split(':');
-    currentHours = parseInt(timeParts[0]);
-    currentMinutes = parseInt(timeParts[1]);
-    currentSeconds = timeParts.length > 2 ? parseInt(timeParts[2]) : 0;
-    tickerStartTime = currentTime;
-    lastFrameTime = currentTime;
-  } else {
-    // Calculate elapsed time since last frame
-    let elapsedSeconds = (currentTime - lastFrameTime) / 1000 * autoPlaySpeed;
-    lastFrameTime = currentTime;
-
-    // Update time
-    currentSeconds += elapsedSeconds;
-    if (currentSeconds >= 60) {
-      currentMinutes += Math.floor(currentSeconds / 60);
-      currentSeconds %= 60;
-    }
-    if (currentMinutes >= 60) {
-      currentHours += Math.floor(currentMinutes / 60);
-      currentMinutes %= 60;
-    }
-    if (currentHours >= 24) {
-      currentHours %= 24;
-    }
-  }
-
-  tickerTimeString =
-    padZero(Math.floor(currentHours)) + ":" +
-    padZero(Math.floor(currentMinutes)) + ":" +
-    padZero(Math.floor(currentSeconds));
-
+  tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
   push();
   rectMode(CENTER);
   fill("black");
-  rect(width / 2, topBarHeight / 4, width / 2, height * 0.05, 300);
+  rect(width / 2, topBarHeight / 4 + height * 0.01, width / 2, height * 0.05, 300);
   fill("white");
   textSize(height * 0.023);
   textAlign(CENTER, CENTER);
-  text(tickerTimeString, width / 2, topBarHeight / 4);
+  text(tickerTimeString + "\t\t07.10.2023", width / 2, topBarHeight / 4 + height * 0.01);
   pop();
 }
 
@@ -269,35 +265,73 @@ function displayAllMessages() {
   }
 }
 
+
 function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
     displayedMessages.push(nextMessage);
     currentMessageIndex++;
 
-    // Calculate the time until the next message should be displayed
-    let currentMessageDate = convertDateTimeToDate(nextMessage.date, nextMessage.time);
-    let nextMessageDate = convertDateTimeToDate(messages[currentMessageIndex].date, messages[currentMessageIndex].time);
+    // Set up ticker times
+    if (currentMessageIndex < messages.length) {
+      let currentMessageDate = convertDateTimeToDate(nextMessage.date, nextMessage.time);
+      let nextMessageDate = convertDateTimeToDate(messages[currentMessageIndex].date, messages[currentMessageIndex].time);
 
-    lastMessageTime = millis();
+      tickerStartTime = currentMessageDate;
+      tickerEndTime = nextMessageDate;
+      tickerStartRealTime = millis();
 
-    let timeDiff = nextMessageDate.getTime() - currentMessageDate.getTime();
-    messageDisplayInterval = Math.max(timeDiff, 2000) / autoPlaySpeed; // At least two seconds between messages
-    console.log("next message in " + messageDisplayInterval / 1000 + "seconds");
+      // Calculate messageDisplayInterval
+      messageDisplayInterval = (tickerEndTime - tickerStartTime) / autoPlaySpeed;
 
-    // Check if the new message is out of the screen
-    if (nextMessage.y + nextMessage.height > endOfChatYPos) {
-      // Scroll up by the height of the new message plus some padding
-      let scrollAmount = nextMessage.height + distanceBetweenMessages + 5;
-      handleScroll(-scrollAmount);
+
+      lastMessageTime = millis();
+
+      let timeDiff = nextMessageDate.getTime() - currentMessageDate.getTime();
+
+
+      // Calculate autoPlaySpeed using a logarithmic scale
+
+      autoPlaySpeed = map(timeDiff, 0, 1000000, minSpeed, maxSpeed)
+
+      if (timeDiff < 1) {
+        timeDiff = minTimeBetweenMessages;
+        autoPlaySpeed = timeDiff / minTimeBetweenMessages;
+      }
+
+      messageDisplayInterval = timeDiff / autoPlaySpeed;
+      console.log("timeDiff: " + timeDiff);
+      console.log("autoPlaySpeed: " + autoPlaySpeed.toFixed(2));
+      console.log("next message in " + (messageDisplayInterval / 1000).toFixed(2) + " seconds");
+
+
+      // Check if the new message is out of the screen
+      if (nextMessage.y + nextMessage.height > endOfChatYPos) {
+        // Scroll up by the height of the new message plus some padding
+        let scrollAmount = nextMessage.height + distanceBetweenMessages + 5;
+        handleScroll(-scrollAmount);
+      }
+    } else {
+      isAutoMode = false; // Stop auto mode when all messages are displayed
     }
-  } else {
-    isAutoMode = false; // Stop auto mode when all messages are displayed
   }
 }
 
 function convertDateTimeToDate(dateString, timeString) {
-  let [day, month, year] = dateString.split('.').map(Number);
+  let day, month, year;
+
+  // Check if the date is in DD.MM.YYYY or DD/MM/YY format
+  if (dateString.includes('.')) {
+    [day, month, year] = dateString.split('.').map(Number);
+  } else if (dateString.includes('/')) {
+    [day, month, year] = dateString.split('/').map(Number);
+    // Assume 2-digit year is in the 2000s
+    year = year < 100 ? 2000 + year : year;
+  } else {
+    console.error('Unsupported date format:', dateString);
+    return null;
+  }
+
   let [hours, minutes, seconds = 0] = timeString.split(':').map(Number);
 
   // Note: JavaScript months are 0-indexed, so we subtract 1 from the month
@@ -344,14 +378,14 @@ function drawLoadingAnimation() {
   fill(pulseColor);
   noStroke();
   circle(width / 2, height / 2, loadingCircleSize);
-  
-  if(loadingCircleSize>150){
-    circleSizeChange=-circleSizeChange;
+
+  if (loadingCircleSize > 150) {
+    circleSizeChange = -circleSizeChange;
   }
-  else if(loadingCircleSize<80){
-    circleSizeChange=-circleSizeChange;
+  else if (loadingCircleSize < 80) {
+    circleSizeChange = -circleSizeChange;
   }
-  loadingCircleSize = (loadingCircleSize + circleSizeChange) ; // Oscillate between 80 and 200
+  loadingCircleSize = (loadingCircleSize + circleSizeChange); // Oscillate between 80 and 200
 
 }
 
@@ -362,8 +396,8 @@ function resetView() {
   setMessageYPositions();
   drawUI();
   tickerStartTime = null;
-  tickerCurrentTime = null;
-  lastTickTime = null;
+  tickerEndTime = null;
+  tickerStartRealTime = null;
 }
 //---------------------------------------
 async function loadChat(chat) {
