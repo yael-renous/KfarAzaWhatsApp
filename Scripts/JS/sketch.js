@@ -267,7 +267,6 @@ function displayAllMessages() {
     image(message.graphic, 0, message.y);
 
     let icon = userData[message.userName].img;
-    icon.resize(userIconSize, userIconSize);
     const iconX = width - userIconXPadding - userIconSize;
     const iconY = message.y + message.height - height * 0.02;
     image(icon, iconX, iconY, userIconSize, userIconSize);
@@ -664,7 +663,7 @@ function renderBlurredText(graphic, text, x, y, color) {
   let blurColor = color;
   let alphaValue = 1;
   if (width < 800)
-    alphaValue = 4;
+    alphaValue = 7;
   // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
