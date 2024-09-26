@@ -355,7 +355,8 @@ function displayAutoMessages() {
 }
 
 function draw() {
-  background(chatBgImage);
+  background(255); // Set a background color to avoid any gaps
+  image(chatBgImage, 0, 0, width, height, 0, 0, chatBgImage.width, chatBgImage.height, COVER);
   if (isLoading) {
     drawLoadingAnimation();
     return;
@@ -393,7 +394,8 @@ function drawLoadingAnimation() {
 }
 
 function resetView() {
-  background(chatBgImage);
+  background(255); // Set a background color to avoid any gaps
+  image(chatBgImage, 0, 0, width, height, 0, 0, chatBgImage.width, chatBgImage.height, COVER);
   currentMessageIndex = 0;
   displayedMessages = [];
   setMessageYPositions();
