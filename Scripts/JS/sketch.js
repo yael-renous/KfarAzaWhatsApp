@@ -108,7 +108,7 @@ function setup() {
 
   if (windowWidth > windowHeight) {
     // Landscape mode: fill height and make it HD proportions
-    createCanvas((windowHeight * 9 )/ 16, windowHeight);
+    createCanvas((windowHeight * 9) / 16, windowHeight);
     console.log("Landscape mode");
   } else {
     // Portrait mode: fill entire screen
@@ -172,7 +172,7 @@ function calculateFinalSizes() {
   chatBoxRadius = relativeChatBoxRadius * width;
   groupIconSize = 0.06 * height;
 
-  newDateHeight = distanceBetweenMessages + timestampFontSize ;
+  newDateHeight = distanceBetweenMessages + timestampFontSize;
   // Calculate max number of characters in a line based on message size and width of the screen
   let sampleText = "כ"; // Use a sample character to estimate width
   textSize(messageFontSize);
@@ -199,11 +199,11 @@ function drawTopBar() {
   let padding = width * 0.02;
 
   let groupIconX = width - groupIconSize - padding;
-  let goupTextX = groupIconX - groupIconSize/2 - padding;
+  let goupTextX = groupIconX - groupIconSize / 2 - padding;
   fill("white");
   textSize(height * 0.024);
   textAlign(RIGHT, CENTER);
-  text(chat.title, goupTextX, topBarHeight / 2 );
+  text(chat.title, goupTextX, topBarHeight / 2);
 
   //group icon
   imageMode(CENTER);
@@ -236,7 +236,7 @@ function calculateTickerTimeString() {
 }
 
 function drawTimeTicker() {
- if (!isAutoMode || displayedMessages.length === 0) return;
+  if (!isAutoMode || displayedMessages.length === 0) return;
 
   tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
@@ -244,11 +244,11 @@ function drawTimeTicker() {
   rectMode(CENTER);
   let padding = height * 0.01;
   fill("black");
-  rect(width / 2, topBarHeight + tickerHeight / 2 +padding, width / 2+padding, tickerHeight, 300);
+  rect(width / 2, topBarHeight + tickerHeight / 2 + padding, width / 2 + padding, tickerHeight, 300);
   fill("white");
   textSize(height * 0.022);
   textAlign(CENTER, CENTER);
-  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight + tickerHeight / 2 +padding);
+  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight + tickerHeight / 2 + padding);
   pop();
 }
 
@@ -262,7 +262,7 @@ function drawBottomBar() {
 }
 
 function displayAllMessages() {
-  for (let i=0; i<lastRenderedMessageIndex; i++) {
+  for (let i = 0; i < lastRenderedMessageIndex; i++) {
     let message = messages[i];
     image(message.graphic, 0, message.y);
 
@@ -310,12 +310,12 @@ function addNextMessage() {
       // Check if the new message is out of the screen
       if (nextMessage.y + nextMessage.height > endOfChatYPos) {
         // Scroll up by the height of the new message plus some padding
-        let scrollAmount = nextMessage.graphic.height  + distanceBetweenMessages + 5;
+        let scrollAmount = nextMessage.graphic.height + distanceBetweenMessages + 5;
         handleScroll(-scrollAmount);
       }
     } else {
       setTimeout(() => {
-        resetView(); 
+        resetView();
       }, 3000);
     }
   }
@@ -412,11 +412,13 @@ function handleScroll(delta) {
   if (messages[0].y + delta > startOfChatYPos) {
     return;
   }
-  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - 10) {
+  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - newDateHeight*3) {
     return;
   }
-  if(messages[lastRenderedMessageIndex].y + delta < endOfChatYPos - messages[lastRenderedMessageIndex].height - 10) {
-    renderMessageImages(lastRenderedMessageIndex,Math.min(messages.length,lastRenderedMessageIndex+renderBulks));
+  if (lastRenderedMessageIndex < messages.length) {
+    if (messages[lastRenderedMessageIndex].y + delta < endOfChatYPos - messages[lastRenderedMessageIndex].height - 10) {
+      renderMessageImages(lastRenderedMessageIndex, Math.min(messages.length, lastRenderedMessageIndex + renderBulks));
+    }
   }
   for (let i = 0; i < messages.length; i++) {
     messages[i].y = messages[i].y + delta;
@@ -448,7 +450,7 @@ async function loadChat(chat) {
     await loadUserData(rawUserData);
     addMessagesNewLines();
     setMessageYPositions();
-    renderMessageImages(0,Math.min(messages.length,renderBulks));
+    renderMessageImages(0, Math.min(messages.length, renderBulks));
   } else {
     console.error(`Failed to load chat: ${chat.englishName}`);
   }
@@ -505,7 +507,7 @@ function setMessageYPositions() {
 
 
 let lastRenderedMessageIndex = 0;
-let renderBulks=30;
+let renderBulks = 30;
 //--------------- render functions ------------------------
 async function renderMessageImages(fromIndex, toIndex) {
   console.log("rendering messages " + fromIndex + " to " + toIndex);
