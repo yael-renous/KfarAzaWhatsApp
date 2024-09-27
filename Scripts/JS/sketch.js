@@ -511,7 +511,7 @@ let renderBulks = 30;
 //--------------- render functions ------------------------
 async function renderMessageImages(fromIndex, toIndex) {
   console.log("rendering messages " + fromIndex + " to " + toIndex);
-  let currentDateString = messages[0].date;
+  let currentDateString = messages[lastRenderedMessageIndex].date;
   for (let i = fromIndex; i < toIndex; i++) {
     let message = messages[i];
     let graphicHeight = message.height + chatBoxYPadding * 2;
