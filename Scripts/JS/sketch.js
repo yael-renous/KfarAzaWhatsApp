@@ -69,6 +69,9 @@ let chatBoxRadius;
 let newDateHeight;
 let tickerHeight;
 let uiIconSize;
+
+let backButtonX;
+let backButtonY;
 // -----------------------
 
 //------ chat data ------
@@ -166,6 +169,7 @@ function handleControlShiftEnter(event) {
 
 
 function calculateFinalSizes() {
+  
   topBarHeight = height * 0.08;
   tickerHeight = height * 0.05;
   inputBarHeight = height * 0.05;
@@ -196,6 +200,9 @@ function calculateFinalSizes() {
   textSize(messageFontSize);
   let charWidth = textWidth(sampleText);
   maxNumOfCharsInLine = Math.floor((width - wholeMessagePadding - messageXOffset) / charWidth);
+
+  backButtonX = width-uiIconSize/2-width * 0.02;
+  backButtonY = topBarHeight/2;
 }
 
 ///----- Draw Functions -----
@@ -205,6 +212,7 @@ function drawUI() {
   drawTimeTicker();
   drawBottomBar();
 }
+
 
 function drawTopBar() {
   push();
@@ -225,7 +233,8 @@ function drawTopBar() {
 
   //back icon
   imageMode(CENTER);
-  image(backIcon, width-uiIconSize/2-padding, topBarHeight / 2, uiIconSize, uiIconSize);
+
+  image(backIcon, backButtonX, backButtonY, uiIconSize, uiIconSize);
 
   let iconPadding = uiIconSize/1.5;
   //group icon
@@ -303,7 +312,7 @@ function drawBottomBar() {
   fill("grey");
   textSize(uiIconSize/1.3);
   textAlign(LEFT, CENTER);
- text("Message",inputBarX+uiIconSize*2, inputBarY+inputBarHeight/2);
+  text("Message",inputBarX+uiIconSize*2, inputBarY+inputBarHeight/2);
   //paper clip icon 
   image(paperClipIcon, inputBarX+inputBarWidth-uiIconSize*2.5, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
   //camera icon
@@ -461,8 +470,16 @@ function resetView() {
   currentDateString = "";
 }
 
+function touchStarted() {
+  
+  if (dist(mouseX, mouseY, backButtonX, backButtonY) < uiIconSize/2) {
+    window.location.href = 'index.html';
+  }
+  // Prevent default behavior
+  return false;
+}
 
-//--------------- scroll functions ------------------------
+//--------------- user interaction functions ------------------------
 function handleScroll(delta) {
   if (messages[0].y + delta > startOfChatYPos) {
     return;
@@ -494,6 +511,8 @@ function touchMoved() {
   handleScroll(delta);
   return false;
 }
+
+
 
 //----------------pre loading functions-------------------
 async function loadChat(chat) {
