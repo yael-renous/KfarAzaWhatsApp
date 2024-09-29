@@ -789,9 +789,9 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
-  if (userData[message.userName].status == 'M') {
-    color = 'light-grey';
-  }
+  // if (userData[message.userName].status == 'M') {
+  //   color = 'light-grey';
+  // }
   graphic.fill(color);
   graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage + dateOffset);
   graphic.pop();
