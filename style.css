@@ -1,8 +1,43 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
+  background: url(./Assets/Images/background-light.jpg) no-repeat center center fixed;
+  background-size: cover;
 }
 
 canvas {
   display: block;
+}
+
+.chat-buttons-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.circular-button {
+  width: 200px;
+  height: 50px;
+  border-radius: 20px;
+  /* Rounded corners */
+  background-color: #90EE90;
+  /* Light green */
+  border: 3px solid #006400;
+  /* Dark green */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #006400;
+  /* Dark green text color */
+  margin: 10px 0;
+  /* Add vertical spacing between buttons */
 }

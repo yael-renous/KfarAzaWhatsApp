@@ -623,14 +623,19 @@ async function renderMessageImages(fromIndex, toIndex) {
 function renderNewDate(graphic, message, userData) {
   graphic.push();
   graphic.rectMode(CENTER);
-  graphic.stroke("grey");
-  graphic.strokeWeight(0.4);
+  graphic.noStroke();
+  graphic.drawingContext.shadowOffsetY = 2;
+  graphic.drawingContext.shadowBlur = 5;
+  graphic.drawingContext.shadowColor = 'grey';
   graphic.fill(chatBoxBgColor);
   graphic.textSize(timestampFontSize);
   let dateWidth = graphic.textWidth(message.date);
   graphic.rect(graphic.width / 2, chatBoxYPadding, dateWidth + chatBoxXPadding * 2, timestampFontSize + chatBoxYPadding, 300);
   graphic.textAlign(CENTER, TOP);
   graphic.fill(timestampColor);
+  graphic.drawingContext.shadowOffsetY = 0;
+  graphic.drawingContext.shadowBlur = 0;
+  graphic.drawingContext.shadowColor = '';
   graphic.noStroke();
   graphic.text(message.date, graphic.width / 2, chatBoxYPadding / 2);
   graphic.pop();

@@ -3,6 +3,7 @@ function createButtons(){
     const buttonsContainer = document.getElementById('buttons-container');
     for(const chat of Object.values(groups)){
         const button = document.createElement('button');
+        button.classList.add('circular-button');
         button.textContent = chat.title;
         button.onclick = () => openChatPage(chat.englishName);
         buttonsContainer.appendChild(button);
