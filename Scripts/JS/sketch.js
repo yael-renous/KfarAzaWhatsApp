@@ -112,7 +112,7 @@ function preload() {
   emojiIcon = loadImage('Assets/Icons/emoji.svg');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
-  redChatBoxColor = "#811818";
+  redChatBoxColor = "#c50000";
   yellowChatBoxColor = "#d4aa00";
   timestampColor = "grey";
   textColor = color(0, 0, 0);
@@ -427,7 +427,7 @@ function displayAllMessages() {
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
       drawingContext.shadowBlur = 20;
-      drawingContext.shadowColor = 'red';
+      drawingContext.shadowColor = redChatBoxColor;
     }
     else if (userData[message.userName].status == 'H') {
       drawingContext.shadowOffsetY = 0;
@@ -449,7 +449,7 @@ function displayAutoMessages() {
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
       drawingContext.shadowBlur = 20;
-      drawingContext.shadowColor = 'red';
+      drawingContext.shadowColor = redChatBoxColor;
     }
     else if (userData[message.userName].status == 'H') {
       drawingContext.shadowOffsetY = 0;
@@ -801,8 +801,8 @@ function renderBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
   let alphaValue = 1;
-  // if (width < 800)
-  //   alphaValue = 7;
+  if (width < 800)
+    alphaValue = 7;
   // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
