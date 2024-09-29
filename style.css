@@ -23,21 +23,21 @@ canvas {
 }
 
 .circular-button {
-  width: 200px;
-  height: 50px;
+  width: 50vw;  /* 20% of viewport width */
+  min-width: 150px;  /* Minimum width to ensure readability */
+  max-width: 300px;  /* Maximum width to prevent excessive stretching */
+  height: 8vh;  /* 8% of viewport height */
+  min-height: 40px;  /* Minimum height for touch-friendly buttons */
+  max-height: 80px;  /* Maximum height to maintain proportions */
   border-radius: 20px;
-  /* Rounded corners */
   background-color: #90EE90;
-  /* Light green */
   border: 3px solid #006400;
-  /* Dark green */
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 2vh;
   font-weight: bold;
   color: #006400;
-  /* Dark green text color */
   margin: 10px 0;
-  /* Add vertical spacing between buttons */
 }
