@@ -14,6 +14,15 @@ let circleSizeChange = 1;
 // -------------------
 
 
+//--ui icons--
+let backIcon;
+let moreOptionsIcon;
+let videoIcon;
+let callIcon;
+let cameraIcon;
+let micIcon;
+let paperClipIcon;
+let emojiIcon;
 
 //------ chat assets ------
 let chatBgImage;
@@ -22,7 +31,7 @@ let textColor;
 let timestampColor;
 let font;
 let topBarHeight;
-let bottomBarHeight;
+let inputBarHeight;
 
 let chatBoxBgColor;
 let redChatBoxColor;
@@ -59,6 +68,7 @@ let blurPixels;
 let chatBoxRadius;
 let newDateHeight;
 let tickerHeight;
+let uiIconSize;
 // -----------------------
 
 //------ chat data ------
@@ -89,6 +99,14 @@ let minTimeBetweenMessages = 2000;
 
 function preload() {
   chatBgImage = loadImage('Assets/Images/background-light.jpg');
+  backIcon = loadImage('Assets/Icons/arrow_back.svg');
+  moreOptionsIcon = loadImage('Assets/Icons/more.svg');
+  videoIcon = loadImage('Assets/Icons/videocam.svg');
+  callIcon = loadImage('Assets/Icons/call.svg');
+  cameraIcon = loadImage('Assets/Icons/camera.svg');
+  micIcon = loadImage('Assets/Icons/mic.svg');
+  paperClipIcon = loadImage('Assets/Icons/paperclip.svg');
+  emojiIcon = loadImage('Assets/Icons/emoji.svg');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
   redChatBoxColor = "#d23c19";
@@ -150,9 +168,9 @@ function handleControlShiftEnter(event) {
 function calculateFinalSizes() {
   topBarHeight = height * 0.08;
   tickerHeight = height * 0.05;
-  bottomBarHeight = height * 0.08;
+  inputBarHeight = height * 0.05;
   startOfChatYPos = topBarHeight + tickerHeight + height * 0.03;
-  endOfChatYPos = height - bottomBarHeight - height * 0.03;
+  endOfChatYPos = height - inputBarHeight*1.5 - height * 0.03;
 
   distanceBetweenUsernameAndMessage = height * 0.025;
   distanceBetweenTimeAndMessage = height * 0.005;
@@ -171,7 +189,7 @@ function calculateFinalSizes() {
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
   groupIconSize = 0.06 * height;
-
+  uiIconSize = 0.03 * height;
   newDateHeight = distanceBetweenMessages + timestampFontSize;
   // Calculate max number of characters in a line based on message size and width of the screen
   let sampleText = "כ"; // Use a sample character to estimate width
@@ -198,19 +216,26 @@ function drawTopBar() {
   rect(0, 0, width, topBarHeight);
   let padding = width * 0.02;
 
-  let groupIconX = width - groupIconSize - padding;
+  let groupIconX = width - groupIconSize/2 - uiIconSize - padding*2;
   let goupTextX = groupIconX - groupIconSize / 2 - padding;
   fill("white");
   textSize(height * 0.024);
   textAlign(RIGHT, CENTER);
   text(chat.title, goupTextX, topBarHeight / 2);
 
-  //group icon
+  //back icon
   imageMode(CENTER);
+  image(backIcon, width-uiIconSize/2-padding, topBarHeight / 2, uiIconSize, uiIconSize);
+
+  let iconPadding = uiIconSize/1.5;
+  //group icon
   image(groupIcon, groupIconX, topBarHeight / 2, groupIconSize, groupIconSize);
   //video icon
+  image(videoIcon, uiIconSize*2+iconPadding*3, topBarHeight / 2, uiIconSize, uiIconSize);
   //call icon
+  image(callIcon, uiIconSize+iconPadding*2, topBarHeight / 2, uiIconSize, uiIconSize);
   //more options icon
+  image(moreOptionsIcon, uiIconSize/2+padding, topBarHeight / 2, uiIconSize, uiIconSize);
   pop();
 }
 
@@ -255,9 +280,39 @@ function drawTimeTicker() {
 
 function drawBottomBar() {
   push();
-  stroke("#dadada");
+  noStroke();
+  rectMode(CORNER);
+  fill("#fff7ea");
+  rect(0, height-inputBarHeight*2, width, inputBarHeight*2);
+  drawingContext.shadowOffsetY = 1.3;
+  drawingContext.shadowBlur = 5;
+  drawingContext.shadowColor = 'grey';
+  let inputBarY = height - inputBarHeight - inputBarHeight/2;
+  let inputBarWidth = width/1.2;
+  let inputBarX = 0.03*width;
+  //input bar
   fill("white");
-  rect(0, height - bottomBarHeight, width, bottomBarHeight);
+  rect(inputBarX, inputBarY, inputBarWidth, inputBarHeight,300);
+  drawingContext.shadowOffsetY = 0;
+  drawingContext.shadowBlur = 0;
+  drawingContext.shadowColor = '';
+  //emoji icon
+  imageMode(CENTER);
+  image(emojiIcon, inputBarX+uiIconSize,  inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  //Message input text
+  fill("grey");
+  textSize(uiIconSize/1.3);
+  textAlign(LEFT, CENTER);
+ text("Message",inputBarX+uiIconSize*2, inputBarY+inputBarHeight/2);
+  //paper clip icon 
+  image(paperClipIcon, inputBarX+inputBarWidth-uiIconSize*2.5, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  //camera icon
+  image(cameraIcon, inputBarX+inputBarWidth-uiIconSize, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  //mic icon
+  fill(topBarColor);
+  circle(width-0.07*width,inputBarY+inputBarHeight/2,uiIconSize*2);
+  imageMode(CENTER);
+  image(micIcon, width-0.07*width, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
   pop();
 }
 
