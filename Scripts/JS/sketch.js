@@ -332,7 +332,7 @@ function displayAllMessages() {
 
     let icon = userData[message.userName].img;
     const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.height - height * 0.02;
+    const iconY = message.y + message.graphic.height - height * 0.05;
     image(icon, iconX, iconY, userIconSize, userIconSize);
   }
 }
@@ -723,7 +723,7 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
   let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
-  graphic.textAlign(LEFT, TOP);
+  graphic.textAlign(RIGHT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
   if (userData[message.userName].status == 'M') {
