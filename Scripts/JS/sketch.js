@@ -101,7 +101,7 @@ let minTimeBetweenMessages = 2000;
 
 
 function preload() {
-  chatBgImage = loadImage('Assets/Images/background-light.jpg');
+  chatBgImage = loadImage('Assets/Images/background-lightish.png');
   backIcon = loadImage('Assets/Icons/arrow_back.svg');
   moreOptionsIcon = loadImage('Assets/Icons/more.svg');
   videoIcon = loadImage('Assets/Icons/videocam.svg');
@@ -112,8 +112,8 @@ function preload() {
   emojiIcon = loadImage('Assets/Icons/emoji.svg');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
-  redChatBoxColor = "#d23c19";
-  yellowChatBoxColor = "#fce887";
+  redChatBoxColor = "#811818";
+  yellowChatBoxColor = "#d4aa00";
   timestampColor = "grey";
   textColor = color(0, 0, 0);
 }
@@ -169,17 +169,17 @@ function handleControlShiftEnter(event) {
 
 
 function calculateFinalSizes() {
-  
+
   topBarHeight = height * 0.08;
   tickerHeight = height * 0.05;
   inputBarHeight = height * 0.05;
   startOfChatYPos = topBarHeight + tickerHeight + height * 0.03;
-  endOfChatYPos = height - inputBarHeight*1.5 - height * 0.03;
+  endOfChatYPos = height - inputBarHeight * 1.5 - height * 0.03;
 
   distanceBetweenUsernameAndMessage = height * 0.025;
   distanceBetweenTimeAndMessage = height * 0.005;
   distanceBetweenMessages = height * 0.05;
-  messageXOffset = width * 0.03;
+  messageXOffset = width * 0.01;
   timeXOffset = width * 0.01;
   wholeMessagePadding = width * 0.12;
   chatBoxYPadding = height * 0.015;
@@ -201,8 +201,8 @@ function calculateFinalSizes() {
   let charWidth = textWidth(sampleText);
   maxNumOfCharsInLine = Math.floor((width - wholeMessagePadding - messageXOffset) / charWidth);
 
-  backButtonX = width-uiIconSize/2-width * 0.02;
-  backButtonY = topBarHeight/2;
+  backButtonX = width - uiIconSize / 2 - width * 0.02;
+  backButtonY = topBarHeight / 2;
 }
 
 ///----- Draw Functions -----
@@ -224,7 +224,7 @@ function drawTopBar() {
   rect(0, 0, width, topBarHeight);
   let padding = width * 0.02;
 
-  let groupIconX = width - groupIconSize/2 - uiIconSize - padding*2;
+  let groupIconX = width - groupIconSize / 2 - uiIconSize - padding * 2;
   let goupTextX = groupIconX - groupIconSize / 2 - padding;
   fill("white");
   textSize(height * 0.024);
@@ -236,15 +236,15 @@ function drawTopBar() {
 
   image(backIcon, backButtonX, backButtonY, uiIconSize, uiIconSize);
 
-  let iconPadding = uiIconSize/1.5;
+  let iconPadding = uiIconSize / 1.5;
   //group icon
   image(groupIcon, groupIconX, topBarHeight / 2, groupIconSize, groupIconSize);
   //video icon
-  image(videoIcon, uiIconSize*2+iconPadding*3, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(videoIcon, uiIconSize * 2 + iconPadding * 3, topBarHeight / 2, uiIconSize, uiIconSize);
   //call icon
-  image(callIcon, uiIconSize+iconPadding*2, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(callIcon, uiIconSize + iconPadding * 2, topBarHeight / 2, uiIconSize, uiIconSize);
   //more options icon
-  image(moreOptionsIcon, uiIconSize/2+padding, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(moreOptionsIcon, uiIconSize / 2 + padding, topBarHeight / 2, uiIconSize, uiIconSize);
   pop();
 }
 
@@ -275,67 +275,80 @@ function drawTimeTicker() {
   tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
   push();
+  drawingContext.shadowOffsetY = 1.3;
+  drawingContext.shadowBlur = 10;
+  drawingContext.shadowColor = 'grey';
   rectMode(CENTER);
   let padding = height * 0.01;
-  fill("black");
-  rect(width / 2, topBarHeight + tickerHeight / 2 + padding, width / 2 + padding, tickerHeight, 300);
+  // fill("#585858");
+  fill(color(0, 0, 0, 120));
+  rect(width / 2, topBarHeight + tickerHeight / 2 + padding, width / 2 + padding, tickerHeight, 200);
   fill("white");
   textSize(height * 0.022);
-  textAlign(CENTER, CENTER);
-  text(tickerTimeString + "\t\t" + currentDateString, width / 2, topBarHeight + tickerHeight / 2 + padding);
+  textAlign(CENTER, TOP);
+  let formattedDateString = formatDateString(currentDateString);
+  text(formattedDateString + "\t\t" + tickerTimeString, width / 2, topBarHeight + tickerHeight / 2);
+
   pop();
 }
+function formatDateString(dateString) {
+  let parts;
+  if (dateString.includes('.')) {
+    parts = dateString.split('.');
+  } else if (dateString.includes('/')) {
+    parts = dateString.split('/');
+  } else {
+    return dateString; // Return original string if format is unknown
+  }
 
+  // Ensure we have three parts (day, month, year)
+  if (parts.length !== 3) return dateString;
+
+  // Pad day and month with leading zeros if necessary
+  let [day, month, year] = parts.map(part => part.padStart(2, '0'));
+
+  return `${day}/${month}/${year}`;
+}
 
 function drawBottomBar() {
   push();
   noStroke();
   rectMode(CORNER);
-  fill("#fff7ea");
-  rect(0, height-inputBarHeight*2, width, inputBarHeight*2);
+  fill("#f8f5f1");
+  rect(0, height - inputBarHeight * 2, width, inputBarHeight * 2);
   drawingContext.shadowOffsetY = 1.3;
   drawingContext.shadowBlur = 5;
   drawingContext.shadowColor = 'grey';
-  let inputBarY = height - inputBarHeight - inputBarHeight/2;
-  let inputBarWidth = width/1.2;
-  let inputBarX = 0.03*width;
+  let inputBarY = height - inputBarHeight - inputBarHeight / 2;
+  let inputBarWidth = width / 1.2;
+  let inputBarX = 0.03 * width;
   //input bar
   fill("white");
-  rect(inputBarX, inputBarY, inputBarWidth, inputBarHeight,300);
+  rect(inputBarX, inputBarY, inputBarWidth, inputBarHeight, 300);
   drawingContext.shadowOffsetY = 0;
   drawingContext.shadowBlur = 0;
   drawingContext.shadowColor = '';
   //emoji icon
   imageMode(CENTER);
-  image(emojiIcon, inputBarX+uiIconSize,  inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  image(emojiIcon, inputBarX + uiIconSize, inputBarY + inputBarHeight / 2, uiIconSize, uiIconSize);
   //Message input text
   fill("grey");
-  textSize(uiIconSize/1.3);
+  textSize(uiIconSize / 1.3);
   textAlign(LEFT, CENTER);
-  text("Message",inputBarX+uiIconSize*2, inputBarY+inputBarHeight/2);
+  text("Message", inputBarX + uiIconSize * 2, inputBarY + inputBarHeight / 2);
   //paper clip icon 
-  image(paperClipIcon, inputBarX+inputBarWidth-uiIconSize*2.5, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  image(paperClipIcon, inputBarX + inputBarWidth - uiIconSize * 2.5, inputBarY + inputBarHeight / 2, uiIconSize, uiIconSize);
   //camera icon
-  image(cameraIcon, inputBarX+inputBarWidth-uiIconSize, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  image(cameraIcon, inputBarX + inputBarWidth - uiIconSize, inputBarY + inputBarHeight / 2, uiIconSize, uiIconSize);
   //mic icon
   fill(topBarColor);
-  circle(width-0.07*width,inputBarY+inputBarHeight/2,uiIconSize*2);
+  circle(width - 0.07 * width, inputBarY + inputBarHeight / 2, uiIconSize * 2);
   imageMode(CENTER);
-  image(micIcon, width-0.07*width, inputBarY+inputBarHeight/2, uiIconSize, uiIconSize);
+  image(micIcon, width - 0.07 * width, inputBarY + inputBarHeight / 2, uiIconSize, uiIconSize);
   pop();
 }
 
-function displayAllMessages() {
-  for (let i = 0; i < lastRenderedMessageIndex; i++) {
-    let message = messages[i];
-    image(message.graphic, 0, message.y);
 
-    let icon = userData[message.userName].img;
-    const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.graphic.height - height * 0.05;
-    image(icon, iconX, iconY, userIconSize, userIconSize);
-  }
-}
 
 let currentDateString;
 function addNextMessage() {
@@ -407,20 +420,56 @@ function convertDateTimeToDate(dateString, timeString) {
 }
 
 
+function displayAllMessages() {
+  for (let i = 0; i < lastRenderedMessageIndex; i++) {
+    let message = messages[i];
+    push();
+    if (userData[message.userName].status == 'M') {
+      drawingContext.shadowOffsetY = 0;
+      drawingContext.shadowBlur = 20;
+      drawingContext.shadowColor = 'red';
+    }
+    else if (userData[message.userName].status == 'H') {
+      drawingContext.shadowOffsetY = 0;
+      drawingContext.shadowBlur = 20;
+      drawingContext.shadowColor = yellowChatBoxColor;
+    }
+    image(message.graphic, 0, message.y);
+    let icon = userData[message.userName].img;
+    const iconX = width - userIconXPadding - userIconSize;
+    const iconY = message.y + message.graphic.height - height * 0.05;
+    image(icon, iconX, iconY, userIconSize, userIconSize);
+    pop();
+  }
+}
 
 function displayAutoMessages() {
   for (let message of displayedMessages) {
+    push();
+    if (userData[message.userName].status == 'M') {
+      drawingContext.shadowOffsetY = 0;
+      drawingContext.shadowBlur = 20;
+      drawingContext.shadowColor = 'red';
+    }
+    else if (userData[message.userName].status == 'H') {
+      drawingContext.shadowOffsetY = 0;
+      drawingContext.shadowBlur = 20;
+      drawingContext.shadowColor = yellowChatBoxColor;
+    }
     image(message.graphic, 0, message.y);
 
     let icon = userData[message.userName].img;
     const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.height - height * 0.02;
+    const iconY = message.y + message.graphic.height - height * 0.05;
     image(icon, iconX, iconY, userIconSize, userIconSize);
+    pop();
   }
 }
 
 function draw() {
+
   background(chatBgImage);
+
   if (isLoading) {
     drawLoadingAnimation();
     return;
@@ -471,8 +520,8 @@ function resetView() {
 }
 
 function touchStarted() {
-  
-  if (dist(mouseX, mouseY, backButtonX, backButtonY) < uiIconSize/2) {
+
+  if (dist(mouseX, mouseY, backButtonX, backButtonY) < uiIconSize / 2) {
     window.location.href = 'index.html';
   }
   // Prevent default behavior
@@ -484,7 +533,7 @@ function handleScroll(delta) {
   if (messages[0].y + delta > startOfChatYPos) {
     return;
   }
-  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - newDateHeight*3) {
+  if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - newDateHeight * 3) {
     return;
   }
   if (lastRenderedMessageIndex < messages.length) {
@@ -649,11 +698,20 @@ function renderChatBox(graphic, message, userData, dateOffset) {
   graphic.drawingContext.shadowBlur = 5;
   graphic.drawingContext.shadowColor = 'grey';
   let bgColor = chatBoxBgColor;
-  if (userData[message.userName].status == 'M') {
-    bgColor = redChatBoxColor;
-  } else if (userData[message.userName].status == 'H') {
-    bgColor = yellowChatBoxColor;
-  }
+  // if (userData[message.userName].status == 'M') {
+  //   // graphic.stroke(redChatBoxColor);
+  //   graphic.drawingContext.shadowColor = '';
+  //   graphic.drawingContext.shadowBlur = 0;
+  // // let bgColor = chatBoxBgColor;
+  //   // graphic.strokeWeight(3);
+  //   // bgColor = redChatBoxColor;
+  // } else if (userData[message.userName].status == 'H') {
+  //   // bgColor = yellowChatBoxColor;
+  //   graphic.drawingContext.shadowColor = '';
+  //   graphic.drawingContext.shadowBlur =0 ;
+  //   // graphic.stroke('yellow');
+  //   // graphic.strokeWeight(3);
+  // }
   graphic.fill(bgColor);
 
   graphic.textSize(messageFontSize);
@@ -692,9 +750,9 @@ function renderMessageContent(graphic, message, censorString, textColor, dateOff
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
   let color = textColor;
-  if (userData[message.userName].status == 'M') {
-    color = 'light-grey';
-  }
+  // if (userData[message.userName].status == 'M') {
+  //   color = 'light-grey';
+  // }
   graphic.fill(color);
 
   let lines = message.message.split('\n');
@@ -743,8 +801,8 @@ function renderBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
   let alphaValue = 1;
-  if (width < 800)
-    alphaValue = 7;
+  // if (width < 800)
+  //   alphaValue = 7;
   // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
