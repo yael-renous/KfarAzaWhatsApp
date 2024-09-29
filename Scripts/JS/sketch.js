@@ -181,7 +181,7 @@ function calculateFinalSizes() {
   distanceBetweenMessages = height * 0.05;
   messageXOffset = width * 0.03;
   timeXOffset = width * 0.01;
-  wholeMessagePadding = width * 0.15;
+  wholeMessagePadding = width * 0.12;
   chatBoxYPadding = height * 0.015;
   chatBoxXPadding = width * 0.02;
 
