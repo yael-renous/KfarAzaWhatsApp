@@ -23,9 +23,9 @@ canvas {
 }
 
 .circular-button {
-  width: 50vw;  /* 20% of viewport width */
-  min-width: 150px;  /* Minimum width to ensure readability */
-  max-width: 300px;  /* Maximum width to prevent excessive stretching */
+  width: 50vw;  /* 50% of viewport width */
+  /* min-width: 200px;  Minimum width to ensure readability */
+  /* max-width: 300px;  Maximum width to prevent excessive stretching */
   height: 5vh;  /* 8% of viewport height */
   min-height: 40px;  /* Minimum height for touch-friendly buttons */
   max-height: 80px;  /* Maximum height to maintain proportions */
@@ -36,7 +36,7 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2vh;
+  font-size: 1.5vh;
   font-weight: bold;
   color: #006400;
   margin: 10px 0;

@@ -46,7 +46,7 @@ const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
 const relativeUserIconXPadding = 0.0135; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
-const relativeBlurAmount = 0.01; // Relative to canvas height
+const relativeBlurAmount = 0.009; // Relative to canvas height
 const relativeChatBoxRadius = 0.03; // Relative to canvas width
 
 let maxNumOfCharsInLine;
@@ -92,7 +92,7 @@ let lastMessageTime = 0;
 let displayedMessages = [];
 
 let messageDisplayInterval = 0;
-const minSpeed = 0.05;
+const minSpeed = 0.1;
 const maxSpeed = 200;
 let autoPlaySpeed = 6;
 let maxTimeBetweenMessages = 10000;
@@ -423,21 +423,23 @@ function convertDateTimeToDate(dateString, timeString) {
 function displayAllMessages() {
   for (let i = 0; i < lastRenderedMessageIndex; i++) {
     let message = messages[i];
+
     push();
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 20;
+      drawingContext.shadowBlur = 50;
       drawingContext.shadowColor = redChatBoxColor;
     }
     else if (userData[message.userName].status == 'H') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 20;
+      drawingContext.shadowBlur = 50;
       drawingContext.shadowColor = yellowChatBoxColor;
     }
-    image(message.graphic, 0, message.y);
     let icon = userData[message.userName].img;
     const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.graphic.height - height * 0.05;
+    const iconY = message.y + message.graphic.height - height * 0.055;
+    image(message.graphic, 0, message.y);
+
     image(icon, iconX, iconY, userIconSize, userIconSize);
     pop();
   }
@@ -445,22 +447,24 @@ function displayAllMessages() {
 
 function displayAutoMessages() {
   for (let message of displayedMessages) {
+    image(message.graphic, 0, message.y);
+
     push();
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 20;
+      drawingContext.shadowBlur = 50;
       drawingContext.shadowColor = redChatBoxColor;
     }
     else if (userData[message.userName].status == 'H') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 20;
+      drawingContext.shadowBlur = 50;
       drawingContext.shadowColor = yellowChatBoxColor;
     }
-    image(message.graphic, 0, message.y);
-
     let icon = userData[message.userName].img;
     const iconX = width - userIconXPadding - userIconSize;
-    const iconY = message.y + message.graphic.height - height * 0.05;
+    const iconY = message.y + message.graphic.height - height * 0.055;
+    image(message.graphic, 0, message.y);
+
     image(icon, iconX, iconY, userIconSize, userIconSize);
     pop();
   }
@@ -721,7 +725,9 @@ function renderChatBox(graphic, message, userData, dateOffset) {
 
   graphic.textSize(timestampFontSize);
   let timestampWidth = graphic.textWidth(message.time);
-  let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  let timestampOffset =Math.max(width*0.01,graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+
+  // let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
 
   let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
   let leftTopX = Math.min(Math.min(messageEndX, endTimestampX), usernameEndX);
@@ -785,7 +791,7 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
+  let timestampOffset =Math.max(width*0.05,graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
@@ -800,7 +806,7 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
 function renderBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
-  let alphaValue = 0.6;
+  let alphaValue = 3;
   // if (width < 800)
   //   alphaValue = 7;
   // console.log(alphaValue);
