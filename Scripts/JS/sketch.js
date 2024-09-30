@@ -115,6 +115,7 @@ function preload() {
   chatBoxBgColor = "#ffffff";
   redChatBoxColor = "#c50000";
   yellowChatBoxColor = "#d4aa00";
+  // yellowChatBoxColor = "#fee300";
   timestampColor = "grey";
   textColor = color(0, 0, 0);
 }
@@ -214,11 +215,11 @@ function drawUI() {
   drawTimeTicker();
   drawBottomBar();
 }
-function drawMap(chatEnglishName) {
 
+function drawMap() {
   if (showMap) {
     let circleWidth = width * 0.03;
-    let mapX = width * 0.15;
+    let mapX = width * 0.16;
     let mapY = topBarHeight + height * 0.04;
     push();
     noStroke();
@@ -304,6 +305,7 @@ function drawTimeTicker() {
   tickerTimeString = calculateTickerTimeString();
   // Draw the ticker
   push();
+  noStroke();
   drawingContext.shadowOffsetY = 1.3;
   drawingContext.shadowBlur = 10;
   drawingContext.shadowColor = 'grey';
