@@ -99,6 +99,7 @@ let maxTimeBetweenMessages = 10000;
 let minTimeBetweenMessages = 2000;
 //-----------------------
 
+let showMap = false; // Global variable to determine if the map should be shown
 
 function preload() {
   chatBgImage = loadImage('Assets/Images/background-lightish.png');
@@ -209,10 +210,38 @@ function calculateFinalSizes() {
 
 function drawUI() {
   drawTopBar();
+  drawMap();
   drawTimeTicker();
   drawBottomBar();
 }
+function drawMap(chatEnglishName) {
 
+  if (showMap) {
+    let circleWidth = width * 0.03;
+    let mapX = width * 0.15;
+    let mapY = topBarHeight + height * 0.04;
+    push();
+    noStroke();
+    fill(redChatBoxColor);
+    drawingContext.shadowOffsetY = 1.3;
+    drawingContext.shadowBlur = 20;
+    drawingContext.shadowColor = redChatBoxColor;
+    fill(redChatBoxColor);
+    rectMode(CENTER);
+    circle(mapX, mapY, circleWidth);
+    textAlign(RIGHT, CENTER);
+    text("נרצח/ה", mapX - circleWidth, mapY);
+
+    drawingContext.shadowColor = yellowChatBoxColor;
+    fill(yellowChatBoxColor);
+    circle(mapX, mapY + circleWidth * 1.5, circleWidth);
+    fill(yellowChatBoxColor);
+    text("חטופ/ה", mapX - circleWidth, mapY + circleWidth * 1.5);
+
+
+    pop();
+  } 
+}
 
 function drawTopBar() {
   push();
@@ -605,11 +634,21 @@ function addMessagesNewLines() {
 
 async function loadUserData(rawUserData) {
   try {
+    showMap = false; // Reset showMap at the start of loading user data
     for (let i = 0; i < rawUserData.length; i++) {
       let icon = rawUserData[i].icon;
       let img = await loadImage(`Assets/UserIcons/${icon}.png`);
       img.resize(userIconSize, userIconSize);
-      userData[rawUserData[i].username] = { img: img, color: rawUserData[i].color, status: rawUserData[i].status };
+      userData[rawUserData[i].username] = {
+        img: img,
+        color: rawUserData[i].color,
+        status: rawUserData[i].status
+      };
+
+      // Check if the status is not empty or null
+      if (rawUserData[i].status && rawUserData[i].status !== "") {
+        showMap = true; // Set showMap to true if any user has a non-empty status
+      }
     }
   } catch (error) {
     console.error('Error loading user icons:', error);
@@ -725,7 +764,7 @@ function renderChatBox(graphic, message, userData, dateOffset) {
 
   graphic.textSize(timestampFontSize);
   let timestampWidth = graphic.textWidth(message.time);
-  let timestampOffset =Math.max(width*0.01,graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+  let timestampOffset = Math.max(width * 0.01, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
 
   // let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
 
@@ -791,7 +830,7 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let timestampOffset =Math.max(width*0.05,graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+  let timestampOffset = Math.max(width * 0.05, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
