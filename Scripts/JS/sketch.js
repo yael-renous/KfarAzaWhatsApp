@@ -102,14 +102,14 @@ let minTimeBetweenMessages = 2000;
 
 function preload() {
   chatBgImage = loadImage('Assets/Images/background-lightish.png');
-  backIcon = loadImage('Assets/Icons/arrow_back.svg');
-  moreOptionsIcon = loadImage('Assets/Icons/more.svg');
-  videoIcon = loadImage('Assets/Icons/videocam.svg');
-  callIcon = loadImage('Assets/Icons/call.svg');
-  cameraIcon = loadImage('Assets/Icons/camera.svg');
-  micIcon = loadImage('Assets/Icons/mic.svg');
-  paperClipIcon = loadImage('Assets/Icons/paperclip.svg');
-  emojiIcon = loadImage('Assets/Icons/emoji.svg');
+  backIcon = loadImage('Assets/Icons/arrow_back.png');
+  moreOptionsIcon = loadImage('Assets/Icons/more.png');
+  videoIcon = loadImage('Assets/Icons/videocam.png');
+  callIcon = loadImage('Assets/Icons/call.png');
+  cameraIcon = loadImage('Assets/Icons/camera.png');
+  micIcon = loadImage('Assets/Icons/mic.png');
+  paperClipIcon = loadImage('Assets/Icons/paperclip.png');
+  emojiIcon = loadImage('Assets/Icons/emoji.png');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
   redChatBoxColor = "#c50000";
@@ -800,9 +800,9 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
 function renderBlurredText(graphic, text, x, y, color) {
   graphic.push();
   let blurColor = color;
-  let alphaValue = 1;
-  if (width < 800)
-    alphaValue = 7;
+  let alphaValue = 0.6;
+  // if (width < 800)
+  //   alphaValue = 7;
   // console.log(alphaValue);
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
