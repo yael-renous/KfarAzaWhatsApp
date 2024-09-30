@@ -181,7 +181,7 @@ function calculateFinalSizes() {
   distanceBetweenMessages = height * 0.05;
   messageXOffset = width * 0.01;
   timeXOffset = width * 0.01;
-  wholeMessagePadding = width * 0.12;
+  wholeMessagePadding = width * 0.14;
   chatBoxYPadding = height * 0.015;
   chatBoxXPadding = width * 0.02;
 
@@ -315,7 +315,7 @@ function drawBottomBar() {
   noStroke();
   rectMode(CORNER);
   fill("#f8f5f1");
-  rect(0, height - inputBarHeight * 2, width, inputBarHeight * 2);
+  rect(0, height - inputBarHeight * 1.65, width, inputBarHeight * 2);
   drawingContext.shadowOffsetY = 1.3;
   drawingContext.shadowBlur = 5;
   drawingContext.shadowColor = 'grey';
