@@ -766,7 +766,7 @@ function renderChatBox(graphic, message, userData, dateOffset) {
 
   graphic.textSize(timestampFontSize);
   let timestampWidth = graphic.textWidth(message.time);
-  let timestampOffset = Math.max(width * 0.1, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+  let timestampOffset = Math.max(width * 0.15, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
 
   // let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
 
@@ -832,7 +832,7 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let timestampOffset = Math.max(width * 0.1, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+  let timestampOffset = Math.max(width * 0.15, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
