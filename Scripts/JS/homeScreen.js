@@ -18,5 +18,16 @@ function openChatPage(groupName) {
 
 document.addEventListener('DOMContentLoaded', function() {
     createButtons();
+    
+    // Add keyboard event listener
+    document.addEventListener('keydown', function(event) {
+        const key = parseInt(event.key);
+        if (key >= 1 && key <= 8) {
+            const groupNames = Object.values(groups).map(chat => chat.englishName);
+            if (key <= groupNames.length) {
+                openChatPage(groupNames[key - 1]);
+            }
+        }
+    });
 });
 
