@@ -509,12 +509,12 @@ function displayAutoMessages() {
     push();
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 50;
+      drawingContext.shadowBlur = 60;
       drawingContext.shadowColor = redChatBoxColor;
     }
     else if (userData[message.userName].status == 'H') {
       drawingContext.shadowOffsetY = 0;
-      drawingContext.shadowBlur = 50;
+      drawingContext.shadowBlur = 60;
       drawingContext.shadowColor = yellowChatBoxColor;
     }
     let icon = userData[message.userName].img;
@@ -765,8 +765,8 @@ function renderChatBox(graphic, message, userData, dateOffset) {
   graphic.push();
   graphic.noStroke();
   graphic.rectMode(CORNERS);
-  graphic.drawingContext.shadowOffsetY = 1.3;
-  graphic.drawingContext.shadowBlur = 5;
+  graphic.drawingContext.shadowOffsetY = 8;
+  graphic.drawingContext.shadowBlur =15;
   graphic.drawingContext.shadowColor = 'grey';
   let bgColor = chatBoxBgColor;
   // if (userData[message.userName].status == 'M') {
