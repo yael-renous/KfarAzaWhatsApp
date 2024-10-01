@@ -383,9 +383,9 @@ function drawBottomBar() {
 }
 
 
-
+let isRendering = false;
 let currentDateString;
-function addNextMessage() {
+async function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
     displayedMessages.push(nextMessage);
@@ -418,19 +418,29 @@ function addNextMessage() {
       console.log("next message in " + (messageDisplayInterval / 1000).toFixed(2) + " seconds");
 
 
+      let scroll = false;
+
       // Check if the new message is out of the screen
       if (nextMessage.y + nextMessage.height > endOfChatYPos) {
+
         // Scroll up by the height of the new message plus some padding
         let scrollAmount = nextMessage.height + distanceBetweenMessages + 5;
 
         if (nextMessage.graphic)
           scrollAmount = nextMessage.graphic.height + distanceBetweenMessages + 5;
+
         handleScroll(-scrollAmount);
+        scroll = true;
       }
-      if (nextMessage.graphic == undefined) {
-        console.log("add next message rendering message " + currentMessageIndex);
-        renderMessageImages(currentMessageIndex, Math.min(messages.length, currentMessageIndex + renderBulks));
+
+      if (nextMessage.graphic == undefined && !scroll) {
+        console.log("add next message rendering message " + currentMessageIndex-1);
+        isRendering = true;
+       await renderMessageImages(currentMessageIndex-1, Math.min(messages.length, currentMessageIndex + renderBulks));
+       isRendering = false;
       }
+
+     
     } else {
       setTimeout(() => {
         resetView();
@@ -488,7 +498,9 @@ function displayAllMessages() {
 
 function displayAutoMessages() {
   for (let message of displayedMessages) {
-    if (!message.graphic) {
+    if (!message.graphic ) {
+      console.log("message graphic is undefined");
+    
     //  renderMessageImages(currentMessageIndex, Math.min(messages.length, currentMessageIndex + renderBulks));
       return;
     }
