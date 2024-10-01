@@ -767,7 +767,7 @@ function renderChatBox(graphic, message, userData, dateOffset) {
   graphic.rectMode(CORNERS);
   graphic.drawingContext.shadowOffsetY = 8;
   graphic.drawingContext.shadowBlur =15;
-  graphic.drawingContext.shadowColor = 'grey';
+  graphic.drawingContext.shadowColor = '#b3b5b4';
   let bgColor = chatBoxBgColor;
   // if (userData[message.userName].status == 'M') {
   //   // graphic.stroke(redChatBoxColor);
