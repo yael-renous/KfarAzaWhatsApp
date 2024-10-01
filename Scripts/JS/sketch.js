@@ -92,11 +92,13 @@ let lastMessageTime = 0;
 let displayedMessages = [];
 
 let messageDisplayInterval = 0;
-const minSpeed = 0.1;
+// const minSpeed = 0.2;
+const minSpeed = 100;
 const maxSpeed = 200;
 let autoPlaySpeed = 6;
 let maxTimeBetweenMessages = 10000;
-let minTimeBetweenMessages = 2000;
+// let minTimeBetweenMessages = 1500;
+let minTimeBetweenMessages = 1;
 //-----------------------
 
 let showMap = false; // Global variable to determine if the map should be shown
@@ -164,6 +166,7 @@ function handleControlShiftEnter(event) {
     console.log('Control + Shift + Enter detected');
     isAutoMode = true;
     currentMessageIndex = 0;
+    renderBulks = 60;
     lastMessageTime = millis(); // Initialize the timestamp
     resetView();
   }
@@ -241,7 +244,7 @@ function drawMap() {
 
 
     pop();
-  } 
+  }
 }
 
 function drawTopBar() {
@@ -418,8 +421,15 @@ function addNextMessage() {
       // Check if the new message is out of the screen
       if (nextMessage.y + nextMessage.height > endOfChatYPos) {
         // Scroll up by the height of the new message plus some padding
-        let scrollAmount = nextMessage.graphic.height + distanceBetweenMessages + 5;
+        let scrollAmount = nextMessage.height + distanceBetweenMessages + 5;
+
+        if (nextMessage.graphic)
+          scrollAmount = nextMessage.graphic.height + distanceBetweenMessages + 5;
         handleScroll(-scrollAmount);
+      }
+      if (nextMessage.graphic == undefined) {
+        console.log("add next message rendering message " + currentMessageIndex);
+        renderMessageImages(currentMessageIndex, Math.min(messages.length, currentMessageIndex + renderBulks));
       }
     } else {
       setTimeout(() => {
@@ -478,6 +488,10 @@ function displayAllMessages() {
 
 function displayAutoMessages() {
   for (let message of displayedMessages) {
+    if (!message.graphic) {
+    //  renderMessageImages(currentMessageIndex, Math.min(messages.length, currentMessageIndex + renderBulks));
+      return;
+    }
     image(message.graphic, 0, message.y);
 
     push();
