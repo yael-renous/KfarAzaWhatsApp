@@ -92,13 +92,13 @@ let lastMessageTime = 0;
 let displayedMessages = [];
 
 let messageDisplayInterval = 0;
-// const minSpeed = 0.2;
-const minSpeed = 100;
+const minSpeed = 0.9;
+// const minSpeed = 100;
 const maxSpeed = 200;
 let autoPlaySpeed = 6;
 let maxTimeBetweenMessages = 10000;
-// let minTimeBetweenMessages = 1500;
-let minTimeBetweenMessages = 1;
+let minTimeBetweenMessages = 1000;
+// let minTimeBetweenMessages = 1;
 //-----------------------
 
 let showMap = false; // Global variable to determine if the map should be shown
@@ -444,7 +444,7 @@ async function addNextMessage() {
     } else {
       setTimeout(() => {
         resetView();
-      }, 3000);
+      }, 0);
     }
   }
 }
