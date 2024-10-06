@@ -12,7 +12,7 @@ let isLoading = true;
 let loadingCircleSize = 80
 let circleSizeChange = 1;
 // -------------------
-
+ let notificationSound;
 
 //--ui icons--
 let backIcon;
@@ -113,6 +113,8 @@ function preload() {
   micIcon = loadImage('Assets/Icons/mic.png');
   paperClipIcon = loadImage('Assets/Icons/paperclip.png');
   emojiIcon = loadImage('Assets/Icons/emoji.png');
+  // notificationSound = loadSound('Assets/sounds/whatsapp.mp3');
+  notificationSound = loadSound('Assets/sounds/notification.mp3');
   topBarColor = "#016b61";
   chatBoxBgColor = "#ffffff";
   redChatBoxColor = "#c50000";
@@ -389,6 +391,7 @@ async function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
     displayedMessages.push(nextMessage);
+    notificationSound.play();
     currentMessageIndex++;
 
     currentDateString = nextMessage.date;
