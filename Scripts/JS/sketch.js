@@ -136,6 +136,10 @@ function setup() {
   if (windowWidth > windowHeight) {
     // Landscape mode: fill height and make it HD proportions
     createCanvas((windowHeight * 9) / 16, windowHeight);
+    //center canvas
+    // Center the canvas horizontally
+    let x = (windowWidth - width) / 2;
+    canvas.position(x, 0);
     console.log("Landscape mode");
   } else {
     // Portrait mode: fill entire screen
@@ -391,7 +395,7 @@ async function addNextMessage() {
   if (currentMessageIndex < messages.length) {
     let nextMessage = messages[currentMessageIndex];
     displayedMessages.push(nextMessage);
-    notificationSound.play();
+    // notificationSound.play();
     currentMessageIndex++;
 
     currentDateString = nextMessage.date;
