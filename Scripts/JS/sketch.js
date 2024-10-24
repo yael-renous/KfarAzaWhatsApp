@@ -135,7 +135,7 @@ function setup() {
 
   if (windowWidth > windowHeight) {
     // Landscape mode: fill height and make it HD proportions
-    createCanvas((windowHeight * 9) / 16, windowHeight);
+    let canvas =createCanvas((windowHeight * 9) / 16, windowHeight);
     //center canvas
     // Center the canvas horizontally
     let x = (windowWidth - width) / 2;
