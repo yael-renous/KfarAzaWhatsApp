@@ -23,8 +23,8 @@
     "color": "#56bedc",
     "status": ""
   },
-  "~ Adar": {
-    "username": "~ Adar",
+  "~ Adar": {
+    "username": "~ Adar",
     "icon": "icon-310",
     "color": "#3cf847",
     "status": ""
@@ -41,14 +41,14 @@
     "color": "#aaba9d",
     "status": ""
   },
-  "~ בני בן ארי": {
-    "username": "~ בני בן ארי",
+  "~ בני בן ארי": {
+    "username": "~ בני בן ארי",
     "icon": "icon-104",
     "color": "#c332dd",
     "status": ""
   },
-  "~ Tzemach Ichay": {
-    "username": "~ Tzemach Ichay",
+  "~ Tzemach Ichay": {
+    "username": "~ Tzemach Ichay",
     "icon": "icon-355",
     "color": "#57996c",
     "status": ""
@@ -59,8 +59,8 @@
     "color": "#e76534",
     "status": ""
   },
-  "~ עוז": {
-    "username": "~ עוז",
+  "~ עוז": {
+    "username": "~ עוז",
     "icon": "icon-277",
     "color": "#0db15a",
     "status": ""
@@ -71,56 +71,69 @@
     "color": "#20145d",
     "status": ""
   },
-  "~ Leehe": {
-    "username": "~ Leehe",
+  "~ Leehe": {
+    "username": "~ Leehe",
     "icon": "icon-001",
     "color": "#2aecb5",
     "status": ""
   },
-  "~ 𝒜𝓂𝒾𝓉𝒶𝓎 𝐿𝑒𝓈𝒽𝑒𝓂": {
-    "username": "~ 𝒜𝓂𝒾𝓉𝒶𝓎 𝐿𝑒𝓈𝒽𝑒𝓂",
+  "~ 𝒜𝓂𝒾𝓉𝒶𝓎 𝐿𝑒𝓈𝒽𝑒𝓂": {
+    "username": "~ ממית ברקוביץ",
     "icon": "icon-421",
     "color": "#606829",
     "status": ""
   },
+  "~ 𝒜mityay Leshem": {
+    "username": "~ 𝒜mityay Leshem",
+    "icon": "icon-421",
+    "color": "#606829",
+    "status": ""
+  },
+  "~ 𝒜𝓂𝒾𝓉𝒶𝓎 𝐿𝑒𝓈𝒽𝑒𝓂": {
+    "username": "~ 𝒜𝓂𝒾𝓉𝒶𝓎 𝐿𝑒𝓈𝒽𝑒𝓂",
+    "icon": "icon-421",
+    "color": "#606829",
+    "status": ""
+  },
+
   "מור שרעבי": {
     "username": "מור שרעבי",
     "icon": "icon-411",
     "color": "#f1dce7",
     "status": ""
   },
-  "~ גייל 🌱": {
-    "username": "~ גייל 🌱",
+  "~ גייל 🌱": {
+    "username": "~ גייל 🌱",
     "icon": "icon-452",
     "color": "#63990c",
     "status": ""
   },
-  "~ Dor Bariach": {
-    "username": "~ Dor Bariach",
+  "~ Dor Bariach": {
+    "username": "~ Dor Bariach",
     "icon": "icon-212",
     "color": "#def386",
     "status": ""
   },
-  "~ אופק ברקוביץ": {
-    "username": "~ אופק ברקוביץ",
+  "~ אופק ברקוביץ": {
+    "username": "~ אופק ברקוביץ",
     "icon": "icon-211",
     "color": "#3eea4e",
     "status": ""
   },
-  "~ איל": {
-    "username": "~ איל",
+  "~ איל": {
+    "username": "~ איל",
     "icon": "icon-281",
     "color": "#39b7b3",
     "status": ""
   },
-  "~ מאיר": {
-    "username": "~ מאיר",
+  "~ מאיר": {
+    "username": "~ מאיר",
     "icon": "icon-395",
     "color": "#26503d",
     "status": ""
   },
-  "~ אלעזר": {
-    "username": "~ אלעזר",
+  "~ אלעזר": {
+    "username": "~ אלעזר",
     "icon": "icon-062",
     "color": "#9d3a22",
     "status": ""
@@ -131,20 +144,20 @@
     "color": "#76ca9e",
     "status": ""
   },
-  "~ Omer Berman": {
-    "username": "~ Omer Berman",
+  "~ Omer Berman": {
+    "username": "~ Omer Berman",
     "icon": "icon-065",
     "color": "#8e211f",
     "status": ""
   },
-  "~ אייל חזות": {
-    "username": "~ אייל חזות",
+  "~ אייל חזות": {
+    "username": "~ אייל חזות",
     "icon": "icon-313",
     "color": "#795ee2",
     "status": ""
   },
-  "~ עקיבא פרנקל": {
-    "username": "~ עקיבא פרנקל",
+  "~ עקיבא פרנקל": {
+    "username": "~ עקיבא פרנקל",
     "icon": "icon-250",
     "color": "#bc3703",
     "status": ""
@@ -155,104 +168,104 @@
     "color": "#1defc0",
     "status": ""
   },
-  "~ Matan Moradian": {
-    "username": "~ Matan Moradian",
+  "~ Matan Moradian": {
+    "username": "~ Matan Moradian",
     "icon": "icon-066",
     "color": "#5973ec",
     "status": ""
   },
-  "~ Y.J.": {
-    "username": "~ Y.J.",
+  "~ Y.J.": {
+    "username": "~ Y.J.",
     "icon": "icon-032",
     "color": "#576001",
     "status": ""
   },
-  "~ מנחם מעוז": {
-    "username": "~ מנחם מעוז",
+  "~ מנחם מעוז": {
+    "username": "~ מנחם מעוז",
     "icon": "icon-129",
     "color": "#6256fa",
     "status": ""
   },
-  "~ Michal": {
-    "username": "~ Michal",
+  "~ Michal": {
+    "username": "~ Michal",
     "icon": "icon-138",
     "color": "#03d0f8",
     "status": ""
   },
-  "~ Yael Itzhak": {
-    "username": "~ Yael Itzhak",
+  "~ Yael Itzhak": {
+    "username": "~ Yael Itzhak",
     "icon": "icon-187",
     "color": "#b3ea5c",
     "status": ""
   },
-  "~ Ran Boskis": {
-    "username": "~ Ran Boskis",
+  "~ Ran Boskis": {
+    "username": "~ Ran Boskis",
     "icon": "icon-225",
     "color": "#4d4bd2",
     "status": ""
   },
-  "~ יהונתן": {
-    "username": "~ יהונתן",
+  "~ יהונתן": {
+    "username": "~ יהונתן",
     "icon": "icon-438",
     "color": "#9b2d51",
     "status": ""
   },
-  "~ אסף גאלדור": {
-    "username": "~ אסף גאלדור",
+  "~ אסף גאלדור": {
+    "username": "~ אסף גאלדור",
     "icon": "icon-361",
     "color": "#50d44f",
     "status": ""
   },
-  "~ Lee": {
-    "username": "~ Lee",
+  "~ Lee": {
+    "username": "~ Lee",
     "icon": "icon-218",
     "color": "#eb05b6",
     "status": ""
   },
-  "~ עמיחי פרבר": {
-    "username": "~ עמיחי פרבר",
+  "~ עמיחי פרבר": {
+    "username": "~ עמיחי פרבר",
     "icon": "icon-319",
     "color": "#dbc5e6",
     "status": ""
   },
-  "~ איתן": {
-    "username": "~ איתן",
+  "~ איתן": {
+    "username": "~ איתן",
     "icon": "icon-445",
     "color": "#63fbbc",
     "status": ""
   },
-  "~ בצלאל ויברמן": {
-    "username": "~ בצלאל ויברמן",
+  "~ בצלאל ויברמן": {
+    "username": "~ בצלאל ויברמן",
     "icon": "icon-402",
     "color": "#818e47",
     "status": ""
   },
-  "~ דוד טחובר": {
-    "username": "~ דוד טחובר",
+  "~ דוד טחובר": {
+    "username": "~ דוד טחובר",
     "icon": "icon-150",
     "color": "#ea85f7",
     "status": ""
   },
-  "~ Gili Adv.": {
-    "username": "~ Gili Adv.",
+  "~ Gili Adv.": {
+    "username": "~ Gili Adv.",
     "icon": "icon-327",
     "color": "#e6d004",
     "status": ""
   },
-  "~ David_ron": {
-    "username": "~ David_ron",
+  "~ David_ron": {
+    "username": "~ David_ron",
     "icon": "icon-441",
     "color": "#1ca31f",
     "status": ""
   },
-  "~ עודד": {
-    "username": "~ עודד",
+  "~ עודד": {
+    "username": "~ עודד",
     "icon": "icon-106",
     "color": "#62fa98",
     "status": ""
   },
-  "~ Anshi": {
-    "username": "~ Anshi",
+  "~ Anshi": {
+    "username": "~ Anshi",
     "icon": "icon-283",
     "color": "#56b001",
     "status": ""

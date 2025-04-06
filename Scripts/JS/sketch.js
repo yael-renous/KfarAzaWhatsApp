@@ -3,7 +3,7 @@ let userData = {};
 let messages = [];
 let userIcons = {};
 let groupIcon;
-const censorString = "צנזורמערכתי";
+const censorString = "CENSORED";
 
 //--screen management--
 let isLoading = true;
@@ -481,7 +481,10 @@ function convertDateTimeToDate(dateString, timeString) {
 function displayAllMessages() {
   for (let i = 0; i < lastRenderedMessageIndex; i++) {
     let message = messages[i];
-
+    if (!message.graphic) {
+      console.log(`Warning: Message ${i} has no graphic`);
+      continue;
+    }
     push();
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
@@ -602,13 +605,24 @@ function handleScroll(delta) {
     return;
   }
   if (messages[messages.length - 1].y + delta < endOfChatYPos - messages[messages.length - 1].height - newDateHeight * 3) {
-    return;
-  }
-  if (lastRenderedMessageIndex < messages.length) {
-    if (messages[lastRenderedMessageIndex].y + delta < endOfChatYPos - messages[lastRenderedMessageIndex].height - 10) {
-      renderMessageImages(lastRenderedMessageIndex, Math.min(messages.length, lastRenderedMessageIndex + renderBulks));
+    // Only block scrolling if we've rendered all messages
+    if (lastRenderedMessageIndex >= messages.length) {
+      return;
     }
   }
+  
+  const bufferZone = height * 2;
+  
+  if (lastRenderedMessageIndex < messages.length) {
+    let lastMessageY = messages[lastRenderedMessageIndex].y;
+    let threshold = endOfChatYPos + bufferZone;
+    
+    if (lastMessageY + delta < threshold) {
+      let nextBulkEnd = Math.min(messages.length, lastRenderedMessageIndex + renderBulks);
+      renderMessageImages(lastRenderedMessageIndex, nextBulkEnd);
+    }
+  }
+  
   for (let i = 0; i < messages.length; i++) {
     messages[i].y = messages[i].y + delta;
   }
@@ -711,7 +725,8 @@ let lastRenderedMessageIndex = 0;
 let renderBulks = 30;
 //--------------- render functions ------------------------
 async function renderMessageImages(fromIndex, toIndex) {
-  console.log("rendering messages " + fromIndex + " to " + toIndex);
+  console.log(`=== Starting render of messages ${fromIndex} to ${toIndex} ===`);
+  
   let currentDateString = messages[lastRenderedMessageIndex].date;
   for (let i = fromIndex; i < toIndex; i++) {
     let message = messages[i];
@@ -744,6 +759,7 @@ async function renderMessageImages(fromIndex, toIndex) {
   //   await new Promise(resolve => setTimeout(resolve, 2000));
   //   console.log("saved message " + i); // Save the graphic as a PNG image
   // }
+  console.log(`=== Completed render. New lastRenderedMessageIndex: ${toIndex} ===`);
   lastRenderedMessageIndex = toIndex;
 }
 
@@ -817,7 +833,13 @@ function renderUsername(graphic, message, userData, dateOffset) {
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
   let username = ':שם משתמש';
-  let userColor = color(userData[message.userName].color);
+  if(userData[message.userName]==undefined){
+    console.log(message.userName);
+    userColor='red';
+  }
+  else{
+    userColor=color(userData[message.userName].color);
+  }
 
   graphic.fill(userColor);
   renderBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
@@ -877,13 +899,12 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.pop();
 }
 
-function renderBlurredText(graphic, text, x, y, color) {
+function renderBlurredText(graphic, text, x, y, inputColor) {
   graphic.push();
-  let blurColor = color;
+  // Convert input color to p5.Color object if it's not already
+  let blurColor = graphic.color(inputColor);
   let alphaValue = 3;
-  // if (width < 800)
-  //   alphaValue = 7;
-  // console.log(alphaValue);
+  
   blurColor.setAlpha(alphaValue);
   graphic.fill(blurColor);
   for (let i = -0; i < blurPixels; i++) {
@@ -891,7 +912,8 @@ function renderBlurredText(graphic, text, x, y, color) {
       graphic.text(text, x - i, y + j);
     }
   }
-  color.setAlpha(255);
+  // Reset alpha for the original color
+  blurColor.setAlpha(255);
   graphic.pop();
 }
 
@@ -903,6 +925,30 @@ function calculateMessageHeight(message) {
     + distanceBetweenUsernameAndMessage
     + distanceBetweenTimeAndMessage;
 }
+
+// function windowResized() {
+//   if (windowWidth > windowHeight) {
+//     // Landscape mode: fill height and make it HD proportions
+//     resizeCanvas((windowHeight * 9) / 16, windowHeight);
+//     // Center the canvas horizontally
+//     let x = (windowWidth - width) / 2;
+//     canvas.position(x, 0);
+//   } else {
+//     // Portrait mode: fill entire screen
+//     resizeCanvas(windowWidth, windowHeight);
+//   }
+  
+//   // Recalculate all size-dependent variables
+//   calculateFinalSizes();
+  
+//   // Reset message positions and graphics
+//   if (messages.length > 0) {
+//     setMessageYPositions();
+//     // Re-render all visible messages
+//     lastRenderedMessageIndex = 0;
+//     renderMessageImages(0, Math.min(messages.length, renderBulks));
+//   }
+// }
 
 
 
