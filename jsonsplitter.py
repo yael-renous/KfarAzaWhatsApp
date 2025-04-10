@@ -21,16 +21,16 @@ def split_json_file(input_file, max_items_per_file=200):
         
         chunk = messages[start_idx:end_idx]
         
-        output_file = f'Messages/JSON/tzach_part{i+1}.json'
+        output_file = f'Messages/JSON/young_part{i+1}.json'
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump({"messages": chunk}, f, ensure_ascii=False, indent=2)
 
-def combine_json_files(directory_path='Messages/JSON/', output_file='Messages/JSON/tzach.json'):
+def combine_json_files(directory_path='Messages/JSON/', output_file='Messages/JSON/young.json'):
     # Initialize empty list for all messages
     all_messages = []
     
     # Get all part files
-    part_files = sorted(glob.glob(f'{directory_path}tzach_part*.json'))
+    part_files = sorted(glob.glob(f'{directory_path}young_part*.json'))
     
     # Read each file and combine messages
     for file_path in part_files:
@@ -43,5 +43,5 @@ def combine_json_files(directory_path='Messages/JSON/', output_file='Messages/JS
         json.dump({"messages": all_messages}, f, ensure_ascii=False, indent=2)
 
 # Usage
-split_json_file('Messages/JSON/tzach.json', 200)  
-# combine_json_files()
+# split_json_file('Messages/JSON/young.json', 200)  
+combine_json_files()
