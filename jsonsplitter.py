@@ -56,5 +56,5 @@ def combine_json_files(directory_path='Messages/JSON/', output_file='Messages/JS
         json.dump({"messages": all_messages}, f, ensure_ascii=False, indent=2)
 
 # Usage
-split_json_file('Messages/JSON/youngPrivate.json', 200)  
-# combine_json_files()
+# split_json_file('Messages/JSON/youngPrivate.json', 200)  
+combine_json_files()
