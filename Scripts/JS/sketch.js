@@ -486,6 +486,9 @@ function displayAllMessages() {
       continue;
     }
     push();
+    if(userData[message.userName]==undefined){
+      console.log(message.userName);
+    }
     if (userData[message.userName].status == 'M') {
       drawingContext.shadowOffsetY = 0;
       drawingContext.shadowBlur = 50;
@@ -833,12 +836,21 @@ function renderUsername(graphic, message, userData, dateOffset) {
   graphic.textAlign(RIGHT, TOP);
   graphic.textSize(messageFontSize);
   let username = ':שם משתמש';
-  if(userData[message.userName]==undefined){
-    console.log(message.userName);
-    userColor='red';
-  }
-  else{
-    userColor=color(userData[message.userName].color);
+  if (userData[message.userName] === undefined) {
+    // Check for the username with non-breaking spaces replaced by regular spaces
+    const userNameWithSpaces = message.userName.replace(/\u202F/g, ' ');
+    const userNameWithNonBreakingSpaces = message.userName.replace(/ /g, '\u202F');
+
+    if (userData[userNameWithSpaces] !== undefined) {
+      userColor = color(userData[userNameWithSpaces].color);
+    } else if (userData[userNameWithNonBreakingSpaces] !== undefined) {
+      userColor = color(userData[userNameWithNonBreakingSpaces].color);
+    } else {
+      console.log(message.userName);
+      userColor = 'red';
+    }
+  } else {
+    userColor = color(userData[message.userName].color);
   }
 
   graphic.fill(userColor);
