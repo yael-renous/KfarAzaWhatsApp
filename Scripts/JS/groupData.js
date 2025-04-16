@@ -1,41 +1,41 @@
 const groups = {
   moms: {
-    title: '✌🏻❤️ אמהות כפר עזה',
+    title: 'Moms Kfar Aza✌🏻❤️',
     hebrewName: 'אימהות',
     englishName: 'moms'
   },
   youngPrivate: {
-    title: 'דור צעיר פרייבט',
+    title: 'Young GenerationPrivate',
     hebrewName: 'דור-צעיר-פרייבט',
     englishName: 'youngPrivate'
   },
   young: {
-    title: '🐫 דור צעיר',
+    title: 'Young Generation 🐫',
     hebrewName: 'דור-צעיר',
     englishName: 'young'
   },
   bulgaria: {
-    title: 'טיול לבולגריה',
+    title: 'Bulgaria Trip',
     hebrewName: 'טיול-בולגריה',
     englishName: 'bulgaria'
   },
   secondHand: {
-    title: '🛋 יד שנייה כפר עזה',
+    title: 'Second Hand Kfar Aza 🛋',
     hebrewName: 'יד-שנייה',
     englishName: 'secondHand'
   },
   idf: {
-    title: 'כוחות צהל',
+    title: 'IDF Forces',
     hebrewName: 'כוחות-צהל',
     englishName: 'idf'
   },
   tzach: {
-    title: 'צח״י כפר עזה',
+    title: 'Tzach Kfar Aza',
     hebrewName: 'צוות-צחי',
     englishName: 'tzach'
   },
   tweeters: {
-    title: '🐣מצייצות בכפר🐔',
+    title: '🐣Tweeters in Kfar Aza🐔',
     hebrewName: 'מצייצות',
     englishName: 'tweeters'
   }
