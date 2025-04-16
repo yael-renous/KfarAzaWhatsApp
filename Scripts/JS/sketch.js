@@ -812,7 +812,7 @@ function renderChatBox(graphic, message, userData, dateOffset) {
   let endTimestampX = timestampOffset + timestampWidth + chatBoxXPadding;
   let  rightBottomX= Math.max(Math.max(messageEndX, endTimestampX), usernameEndX);
   let leftTopY = 0 + dateOffset;
-  let leftTopX = wholeMessagePadding + chatBoxXPadding;
+  let leftTopX = wholeMessagePadding - chatBoxXPadding;
   // let leftTopX =  chatBoxXPadding;
   let rightBottomY = message.height + chatBoxYPadding + dateOffset;
   graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, chatBoxRadius);
