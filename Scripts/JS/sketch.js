@@ -228,7 +228,7 @@ function drawUI() {
 function drawMap() {
   if (showMap) {
     let circleWidth = width * 0.03;
-    let mapX = width * 0.16;
+    let mapX = width * 0.05;
     let mapY = topBarHeight + height * 0.04;
     push();
     noStroke();
@@ -239,14 +239,14 @@ function drawMap() {
     fill(redChatBoxColor);
     rectMode(CENTER);
     circle(mapX, mapY, circleWidth);
-    textAlign(RIGHT, CENTER);
-    text("נרצח/ה", mapX - circleWidth, mapY);
+    textAlign(LEFT, CENTER);
+    text("murderd", mapX + circleWidth, mapY);
 
     drawingContext.shadowColor = yellowChatBoxColor;
     fill(yellowChatBoxColor);
     circle(mapX, mapY + circleWidth * 1.5, circleWidth);
     fill(yellowChatBoxColor);
-    text("חטופ/ה", mapX - circleWidth, mapY + circleWidth * 1.5);
+    text("kidnapped", mapX + circleWidth, mapY + circleWidth * 1.5);
 
 
     pop();
