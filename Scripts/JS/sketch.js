@@ -44,7 +44,7 @@ const relativeMaxNumOfCharsInLine = 0.05;
 const relativeMessageFontSize = 0.018; // Relative to canvas height
 const relativeTimestampFontSize = 0.013; // Relative to canvas height
 const relativeUserIconSize = 0.04; // Relative to canvas height
-const relativeUserIconXPadding = 0.0135; // Relative to canvas height
+const relativeUserIconXPadding = 0.03; // Relative to canvas height
 const relativeUserIconYPadding = 0.003; // Relative to canvas height
 const relativeBlurAmount = 0.009; // Relative to canvas height
 const relativeChatBoxRadius = 0.03; // Relative to canvas width
@@ -199,7 +199,7 @@ function calculateFinalSizes() {
   messageFontSize = relativeMessageFontSize * height;
   timestampFontSize = relativeTimestampFontSize * height;
   userIconSize = relativeUserIconSize * height;
-  userIconXPadding = relativeUserIconXPadding * height;
+  userIconXPadding = relativeUserIconXPadding * width;
   userIconYPadding = relativeUserIconYPadding * height;
   blurPixels = Math.round(relativeBlurAmount * height);
   chatBoxRadius = relativeChatBoxRadius * width;
@@ -228,7 +228,7 @@ function drawUI() {
 function drawMap() {
   if (showMap) {
     let circleWidth = width * 0.03;
-    let mapX = width * 0.05;
+    let mapX = width * 0.2;
     let mapY = topBarHeight + height * 0.04;
     push();
     noStroke();
@@ -238,15 +238,15 @@ function drawMap() {
     drawingContext.shadowColor = redChatBoxColor;
     fill(redChatBoxColor);
     rectMode(CENTER);
-    circle(mapX, mapY, circleWidth);
+    circle(width- mapX, mapY, circleWidth);
     textAlign(LEFT, CENTER);
-    text("murderd", mapX + circleWidth, mapY);
+    text("murderd", width - mapX + circleWidth, mapY);
 
     drawingContext.shadowColor = yellowChatBoxColor;
     fill(yellowChatBoxColor);
-    circle(mapX, mapY + circleWidth * 1.5, circleWidth);
+    circle(width- mapX, mapY + circleWidth * 1.5, circleWidth);
     fill(yellowChatBoxColor);
-    text("kidnapped", mapX + circleWidth, mapY + circleWidth * 1.5);
+    text("kidnapped", width - mapX + circleWidth, mapY + circleWidth * 1.5);
 
 
     pop();
@@ -500,7 +500,7 @@ function displayAllMessages() {
       drawingContext.shadowColor = yellowChatBoxColor;
     }
     let icon = userData[message.userName].img;
-    const iconX = width - userIconXPadding - userIconSize;
+    const iconX = userIconXPadding;
     const iconY = message.y + message.graphic.height - height * 0.055;
     image(message.graphic, 0, message.y);
 
@@ -531,7 +531,7 @@ function displayAutoMessages() {
       drawingContext.shadowColor = yellowChatBoxColor;
     }
     let icon = userData[message.userName].img;
-    const iconX = width - userIconXPadding - userIconSize;
+    const iconX = userIconXPadding ;
     const iconY = message.y + message.graphic.height - height * 0.055;
     image(message.graphic, 0, message.y);
 
@@ -795,37 +795,25 @@ function renderChatBox(graphic, message, userData, dateOffset) {
   graphic.drawingContext.shadowBlur =15;
   graphic.drawingContext.shadowColor = '#b3b5b4';
   let bgColor = chatBoxBgColor;
-  // if (userData[message.userName].status == 'M') {
-  //   // graphic.stroke(redChatBoxColor);
-  //   graphic.drawingContext.shadowColor = '';
-  //   graphic.drawingContext.shadowBlur = 0;
-  // // let bgColor = chatBoxBgColor;
-  //   // graphic.strokeWeight(3);
-  //   // bgColor = redChatBoxColor;
-  // } else if (userData[message.userName].status == 'H') {
-  //   // bgColor = yellowChatBoxColor;
-  //   graphic.drawingContext.shadowColor = '';
-  //   graphic.drawingContext.shadowBlur =0 ;
-  //   // graphic.stroke('yellow');
-  //   // graphic.strokeWeight(3);
-  // }
+
   graphic.fill(bgColor);
 
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let usernameEndX = graphic.width - wholeMessagePadding - graphic.textWidth(':שם משתמש') - chatBoxXPadding;
-  let messageEndX = graphic.width - graphic.textWidth(message.message) - messageXOffset - wholeMessagePadding - chatBoxXPadding;
+  let usernameEndX = wholeMessagePadding + graphic.textWidth('username:') + chatBoxXPadding;
+  let messageEndX = graphic.textWidth(message.message) + messageXOffset + wholeMessagePadding + chatBoxXPadding;
 
   graphic.textSize(timestampFontSize);
   let timestampWidth = graphic.textWidth(message.time);
-  let timestampOffset = Math.max(width * 0.15, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
+  let timestampOffset = Math.min(width * 0.15,  wholeMessagePadding + messageXOffset + contentWidth + timeXOffset);
 
   // let timestampOffset = graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset;
 
-  let endTimestampX = timestampOffset - timestampWidth - chatBoxXPadding;
-  let leftTopX = Math.min(Math.min(messageEndX, endTimestampX), usernameEndX);
+  let endTimestampX = timestampOffset + timestampWidth + chatBoxXPadding;
+  let  rightBottomX= Math.max(Math.max(messageEndX, endTimestampX), usernameEndX);
   let leftTopY = 0 + dateOffset;
-  let rightBottomX = width - wholeMessagePadding + chatBoxXPadding;
+  let leftTopX = wholeMessagePadding + chatBoxXPadding;
+  // let leftTopX =  chatBoxXPadding;
   let rightBottomY = message.height + chatBoxYPadding + dateOffset;
   graphic.rect(leftTopX, leftTopY, rightBottomX, rightBottomY, chatBoxRadius);
   graphic.pop();
@@ -833,9 +821,9 @@ function renderChatBox(graphic, message, userData, dateOffset) {
 
 function renderUsername(graphic, message, userData, dateOffset) {
   graphic.push();
-  graphic.textAlign(RIGHT, TOP);
+  graphic.textAlign(LEFT, TOP);
   graphic.textSize(messageFontSize);
-  let username = ':שם משתמש';
+  let username = 'username:';
   if (userData[message.userName] === undefined) {
     // Check for the username with non-breaking spaces replaced by regular spaces
     const userNameWithSpaces = message.userName.replace(/\u202F/g, ' ');
@@ -854,19 +842,17 @@ function renderUsername(graphic, message, userData, dateOffset) {
   }
 
   graphic.fill(userColor);
-  renderBlurredText(graphic, username, width - wholeMessagePadding, 0 + dateOffset, userColor);
+  renderBlurredText(graphic, username,wholeMessagePadding, 0 + dateOffset, userColor);
   // graphic.text(username, width - wholeMessagePadding, 0 + dateOffset);
   graphic.pop();
 }
 
 function renderMessageContent(graphic, message, censorString, textColor, dateOffset) {
   graphic.push();
-  graphic.textAlign(RIGHT, TOP);
+  graphic.textAlign(LEFT, TOP);
   graphic.textSize(messageFontSize);
   let color = textColor;
-  // if (userData[message.userName].status == 'M') {
-  //   color = 'light-grey';
-  // }
+
   graphic.fill(color);
 
   let lines = message.message.split('\n');
@@ -874,18 +860,18 @@ function renderMessageContent(graphic, message, censorString, textColor, dateOff
 
   for (let line of lines) {
     let parts = line.split(censorString);
-    let x = width - wholeMessagePadding - messageXOffset;
+    let x = wholeMessagePadding + messageXOffset;
 
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) {
         renderBlurredText(graphic, censorString, x, y, textColor);
         // graphic.text(censorString, x, y);
-        x -= graphic.textWidth(censorString) + graphic.textWidth(' ');
+        x += graphic.textWidth(censorString) + graphic.textWidth(' ');
       }
 
       if (parts[i] !== "") {
         graphic.text(parts[i] + '\u200F', x, y);
-        x -= graphic.textWidth(parts[i] + '\u200F');
+        x += graphic.textWidth(parts[i] + '\u200F');
       }
     }
 
@@ -899,13 +885,11 @@ function renderTimestamp(graphic, message, timestampColor, dateOffset) {
   graphic.push();
   graphic.textSize(messageFontSize);
   let contentWidth = graphic.textWidth(message.message);
-  let timestampOffset = Math.max(width * 0.15, graphic.width - wholeMessagePadding - messageXOffset - contentWidth - timeXOffset);
-  graphic.textAlign(RIGHT, TOP);
+  let timestampOffset = Math.min(width * 0.15, wholeMessagePadding +messageXOffset +contentWidth + timeXOffset);
+  graphic.textAlign(LEFT, TOP);
   graphic.textSize(timestampFontSize);
   let color = timestampColor;
-  // if (userData[message.userName].status == 'M') {
-  //   color = 'light-grey';
-  // }
+
   graphic.fill(color);
   graphic.text(message.time, timestampOffset, message.height - timestampFontSize + distanceBetweenTimeAndMessage + dateOffset);
   graphic.pop();
