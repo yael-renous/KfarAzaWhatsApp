@@ -5,7 +5,7 @@ const groups = {
     englishName: 'moms'
   },
   youngPrivate: {
-    title: 'Young GenerationPrivate',
+    title: 'Young Generation Private',
     hebrewName: 'דור-צעיר-פרייבט',
     englishName: 'youngPrivate'
   },
