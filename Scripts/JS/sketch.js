@@ -212,7 +212,7 @@ function calculateFinalSizes() {
   let charWidth = textWidth(sampleText);
   maxNumOfCharsInLine = Math.floor((width - wholeMessagePadding - messageXOffset) / charWidth);
 
-  backButtonX = width - uiIconSize / 2 - width * 0.02;
+  backButtonX = uiIconSize / 2 + width * 0.02;
   backButtonY = topBarHeight / 2;
 }
 
@@ -263,11 +263,11 @@ function drawTopBar() {
   rect(0, 0, width, topBarHeight);
   let padding = width * 0.02;
 
-  let groupIconX = width - groupIconSize / 2 - uiIconSize - padding * 2;
-  let goupTextX = groupIconX - groupIconSize / 2 - padding;
+  let groupIconX = groupIconSize / 2 + uiIconSize + padding * 2;
+  let goupTextX = groupIconX + groupIconSize / 2 + padding;
   fill("white");
   textSize(height * 0.024);
-  textAlign(RIGHT, CENTER);
+  textAlign(LEFT, CENTER);
   text(chat.title, goupTextX, topBarHeight / 2);
 
   //back icon
@@ -279,11 +279,11 @@ function drawTopBar() {
   //group icon
   image(groupIcon, groupIconX, topBarHeight / 2, groupIconSize, groupIconSize);
   //video icon
-  image(videoIcon, uiIconSize * 2 + iconPadding * 3, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(videoIcon,width- uiIconSize * 2 - iconPadding * 3, topBarHeight / 2, uiIconSize, uiIconSize);
   //call icon
-  image(callIcon, uiIconSize + iconPadding * 2, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(callIcon, width- uiIconSize - iconPadding * 2, topBarHeight / 2, uiIconSize, uiIconSize);
   //more options icon
-  image(moreOptionsIcon, uiIconSize / 2 + padding, topBarHeight / 2, uiIconSize, uiIconSize);
+  image(moreOptionsIcon, width -uiIconSize / 2 - padding, topBarHeight / 2, uiIconSize, uiIconSize);
   pop();
 }
 
